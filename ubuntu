@@ -1,4 +1,9 @@
 #!/bin/bash
+#
+# sudo su -
+# wget -O /tmp/ubuntu https://github.com/concise/dry/raw/master/ubuntu
+# bash /tmp/ubuntu
+#
 
 set -e
 
