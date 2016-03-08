@@ -13,9 +13,9 @@ set -e
 test 0 = "$( id -u )" || { echo 'Error: You are not root.'; false; }
 
 printf %s 'Testing network connectivity... ' &&
-ping -q -c 6 -i 0.2 -W 2 8.8.8.8 &>/dev/null &&
-ping -q -c 6 -i 0.2 -W 2 ntp.ubuntu.com &>/dev/null &&
-ping -q -c 6 -i 0.2 -W 2 mirror01.idc.hinet.net &>/dev/null &&
+ping -q -c 6 -i 0.2 -W 2 8.8.8.8 &> /dev/null &&
+ping -q -c 6 -i 0.2 -W 2 ntp.ubuntu.com &> /dev/null &&
+ping -q -c 6 -i 0.2 -W 2 mirror01.idc.hinet.net &> /dev/null &&
 echo OK || { echo FAIL; false; }
 
 sed --in-place=".backup.$(date +%Y%m%d.%H%M%S)" \
@@ -27,7 +27,7 @@ echo 'The capslock key will be an additional control key after reboot.'
 echo Asia/Taipei > /etc/timezone
 dpkg-reconfigure --frontend=noninteractive tzdata
 ntpdate -u ntp.ubuntu.com
-echo 'System time is updated.'
+echo 'System time updated.'
 
 sed --in-place=".backup.$(date +%Y%m%d.%H%M%S)" \
   's@//.*archive.ubuntu.com/@//mirror01.idc.hinet.net/@' \
@@ -35,7 +35,11 @@ sed --in-place=".backup.$(date +%Y%m%d.%H%M%S)" \
 apt-get update
 apt-get dist-upgrade --assume-yes
 apt-get install --assume-yes openssh-server screen tmux vim
-echo 'System packages are updated.'
+echo 'System packages updated.'
+
+mv /etc/vim/vimrc /etc/vim/vimrc.backup."$(date +%Y%m%d.%H%M%S)"
+echo > /etc/vim/vimrc 'se nocp uc=0 vi= nolpl rtp=$VIMRUNTIME mls=0 hid bs=2 ai ci pi et sts=4 sw=4 kp=:help fo=qn tw=79 sc shm+=I lcs=tab:>-,trail:.|sy off|filet off'
+echo 'System vimrc file (/etc/vim/vimrc) changed.'
 
 sed --in-place=".backup.$(date +%Y%m%d.%H%M%S)" \
   's@^\(GRUB_CMDLINE_LINUX_DEFAULT=.*\)@#\1@' \
