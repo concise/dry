@@ -15,21 +15,21 @@ echo OK || { echo FAIL; false; }
 
 sed --in-place=.original 's@^XKBOPTIONS=""$@XKBOPTIONS="ctrl:nocaps"@' /etc/default/keyboard
 dpkg-reconfigure --priority=high keyboard-configuration
-echo 'Now the capslock key will be an additional ctrl key after reboot.'
+echo 'The capslock key will be an additional control key after reboot.'
 
 echo Asia/Taipei > /etc/timezone
 dpkg-reconfigure --frontend=noninteractive tzdata
 ntpdate -u ntp.ubuntu.com
-echo 'System time updated.'
+echo 'System time is updated.'
 
 sed --in-place=.original 's@//.*archive.ubuntu.com/@//mirror01.idc.hinet.net/@' /etc/apt/sources.list
 apt-get update
 apt-get dist-upgrade --assume-yes
 apt-get install --assume-yes openssh-server screen tmux
-echo 'System packages updated.'
+echo 'System packages are updated.'
 
 echo manual > /etc/init/lightdm.override
 echo
-echo 'Now the GUI at tty7 is disabled; it will take effect after reboot.'
-echo 'Run `service lightdm start` as root in a text console if you need that.'
+echo 'GUI at tty7 will not be automatically started anymore.'
+echo 'Run `service lightdm start` as root in tty[1-6] if you do need that.'
 echo
