@@ -34,7 +34,7 @@ sed --in-place=".backup.$(date +%Y%m%d.%H%M%S)" \
   /etc/apt/sources.list
 apt-get update
 apt-get dist-upgrade --assume-yes
-apt-get install --assume-yes openssh-server screen tmux
+apt-get install --assume-yes openssh-server screen tmux vim
 echo 'System packages are updated.'
 
 sed --in-place=".backup.$(date +%Y%m%d.%H%M%S)" \
