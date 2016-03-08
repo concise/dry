@@ -18,7 +18,9 @@ ping -q -c 6 -i 0.2 -W 2 ntp.ubuntu.com &>/dev/null &&
 ping -q -c 6 -i 0.2 -W 2 mirror01.idc.hinet.net &>/dev/null &&
 echo OK || { echo FAIL; false; }
 
-sed --in-place=".backup.$(date +%Y%m%d.%H%M%S)" 's@^XKBOPTIONS=""$@XKBOPTIONS="ctrl:nocaps"@' /etc/default/keyboard
+sed --in-place=".backup.$(date +%Y%m%d.%H%M%S)" \
+  's@^XKBOPTIONS=.*$@XKBOPTIONS="ctrl:nocaps"@' \
+  /etc/default/keyboard
 dpkg-reconfigure --priority=high keyboard-configuration
 echo 'The capslock key will be an additional control key after reboot.'
 
@@ -27,11 +29,19 @@ dpkg-reconfigure --frontend=noninteractive tzdata
 ntpdate -u ntp.ubuntu.com
 echo 'System time is updated.'
 
-sed --in-place=".backup.$(date +%Y%m%d.%H%M%S)" 's@//.*archive.ubuntu.com/@//mirror01.idc.hinet.net/@' /etc/apt/sources.list
+sed --in-place=".backup.$(date +%Y%m%d.%H%M%S)" \
+  's@//.*archive.ubuntu.com/@//mirror01.idc.hinet.net/@' \
+  /etc/apt/sources.list
 apt-get update
 apt-get dist-upgrade --assume-yes
 apt-get install --assume-yes openssh-server screen tmux
 echo 'System packages are updated.'
+
+sed --in-place=".backup.$(date +%Y%m%d.%H%M%S)" \
+  's@^\(GRUB_CMDLINE_LINUX_DEFAULT=.*\)@#\1@' \
+  /etc/default/grub
+update-grub
+echo 'You will enter tty1 instead of tty7 when booting the system.'
 
 echo manual > /etc/init/lightdm.override
 echo
