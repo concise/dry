@@ -1,0 +1,35 @@
+#!/bin/bash
+
+set -e
+
+[[ $( cat /etc/issue ) = 'Ubuntu 14.04'* ]] ||
+{ echo 'Error: This is not Ubuntu 14.04.'; false; }
+
+test 0 = "$( id -u )" || { echo 'Error: You are not root'; false; }
+
+printf %s 'Testing network connectivity... ' &&
+ping -q -c 6 -i 0.2 -W 2 8.8.8.8 &>/dev/null &&
+ping -q -c 6 -i 0.2 -W 2 ntp.ubuntu.com &>/dev/null &&
+ping -q -c 6 -i 0.2 -W 2 mirror01.idc.hinet.net &>/dev/null &&
+echo OK || { echo FAIL; false; }
+
+sed --in-place=.original 's@^XKBOPTIONS=""$@XKBOPTIONS="ctrl:nocaps"@' /etc/default/keyboard
+dpkg-reconfigure --priority=high keyboard-configuration
+echo 'Now the capslock key will be an additional ctrl key after reboot.'
+
+echo Asia/Taipei > /etc/timezone
+dpkg-reconfigure --frontend=noninteractive tzdata
+ntpdate -u ntp.ubuntu.com
+echo 'System time updated.'
+
+sed --in-place=.original 's@//.*archive.ubuntu.com/@//mirror01.idc.hinet.net/@' /etc/apt/sources.list
+apt-get update
+apt-get dist-upgrade --assume-yes
+apt-get install --assume-yes openssh-server screen tmux
+echo 'System packages updated.'
+
+echo manual > /etc/init/lightdm.override
+echo
+echo 'Now the GUI at tty7 is disabled; it will take effect after reboot.'
+echo 'Run `service lightdm start` as root in a text console if you need that.'
+echo
