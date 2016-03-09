@@ -37,6 +37,7 @@ apt-get dist-upgrade --assume-yes
 apt-get install --assume-yes openssh-server screen tmux vim
 echo 'System packages updated.'
 
+cp /etc/ssh/sshd_config /etc/ssh/sshd_config.backup."$(date +%Y%m%d.%H%M%S)"
 echo 'UseDNS no' >> /etc/ssh/sshd_config
 echo 'Reverse DNS for sshd disabled.'
 
