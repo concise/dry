@@ -41,6 +41,8 @@ mv /etc/vim/vimrc /etc/vim/vimrc.backup."$(date +%Y%m%d.%H%M%S)"
 echo > /etc/vim/vimrc 'se nocp uc=0 vi= nolpl rtp=$VIMRUNTIME mls=0 hid bs=2 ai ci pi et sts=4 sw=4 kp=:help fo=qn tw=79 sc shm+=I lcs=tab:>-,trail:.|sy off|filet off'
 echo 'System vimrc file (/etc/vim/vimrc) changed.'
 
+update-alternatives --set editor /usr/bin/vim.basic
+
 sed --in-place=".backup.$(date +%Y%m%d.%H%M%S)" 's@^\(GRUB_CMDLINE_LINUX_DEFAULT=.*\)@#\1@' /etc/default/grub
 update-grub
 echo 'You will enter tty1 instead of tty7 when booting the system.'
