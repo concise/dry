@@ -8,10 +8,10 @@
 set -e
 
 apt-get install -y libreadline-dev libssl-dev
-wget https://www.python.org/ftp/python/3.5.1/Python-3.5.1.tgz
-openssl dgst -md5 Python-3.5.1.tgz | grep be78e48cdfc1a7ad90efff146dce6cfe
-tar xzf Python-3.5.1.tgz
-cd Python-3.5.1
+wget -O /tmp/Python-3.5.1.tgz https://www.python.org/ftp/python/3.5.1/Python-3.5.1.tgz
+openssl dgst -md5 /tmp/Python-3.5.1.tgz | grep be78e48cdfc1a7ad90efff146dce6cfe
+tar xzf /tmp/Python-3.5.1.tgz -C /tmp
+cd /tmp/Python-3.5.1
 ./configure
 make -j 8
 make install
