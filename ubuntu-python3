@@ -1,0 +1,18 @@
+#!/bin/bash
+#
+# sudo su -
+# wget -O /tmp/ubuntu-python3 https://github.com/concise/dry/raw/master/ubuntu-python3
+# bash /tmp/ubuntu-python3
+#
+
+set -e
+
+apt-get install -y libreadline-dev libssl-dev
+wget https://www.python.org/ftp/python/3.5.1/Python-3.5.1.tgz
+openssl dgst -md5 Python-3.5.1.tgz | grep be78e48cdfc1a7ad90efff146dce6cfe
+tar xzf Python-3.5.1.tgz
+cd Python-3.5.1
+./configure
+make -j 8
+make install
+pip3 install --upgrade pip setuptools virtualenv
