@@ -29,9 +29,11 @@ sed --in-place=".backup.$(date +%Y%m%d.%H%M%S)" 's@//.*archive.ubuntu.com/@//mir
 apt-get update
 apt-get dist-upgrade --assume-yes
 apt-get install --assume-yes openssh-server
+apt-get install --assume-yes vim tmux screen
 echo
 echo 'System packages updated.'
-echo 'OpenSSH server is installed.'
+echo 'Installed: openssh-server'
+echo 'Installed: vim tmux screen'
 echo
 
 cp /etc/ssh/sshd_config /etc/ssh/sshd_config.backup."$(date +%Y%m%d.%H%M%S)"
@@ -43,11 +45,6 @@ echo 'The root user will be able to login via SSH with password.'
 echo 'The stupid reverse DNS lookup for sshd is now disabled.'
 echo
 
-apt-get install --assume-yes vim screen tmux
-echo
-echo 'Install additional packages.'
-echo
-
 mv /etc/vim/vimrc /etc/vim/vimrc.backup."$(date +%Y%m%d.%H%M%S)"
 echo > /etc/vim/vimrc 'se nocp uc=0 vi= nolpl rtp=$VIMRUNTIME mls=0 hid bs=2 ai ci pi et sts=4 sw=4 kp=:help fo=qn tw=79 sc shm+=I lcs=tab:>-,trail:.|sy off|filet off'
 update-alternatives --set editor /usr/bin/vim.basic
@@ -55,6 +52,8 @@ echo
 echo '/etc/vim/vimrc is updated.'
 echo '/usr/bin/vim.basic is now the default text editor.'
 echo
+
+if dpkg -l ubuntu-desktop &> /dev/null; then
 
 cp /etc/default/grub /etc/default/grub.backup."$(date +%Y%m%d.%H%M%S)"
 sed --in-place 's@^GRUB_HIDDEN_TIMEOUT=0$@#GRUB_HIDDEN_TIMEOUT=0@' /etc/default/grub
@@ -78,3 +77,5 @@ dpkg-reconfigure --priority=high keyboard-configuration
 echo
 echo 'The capslock key will be an additional control key after reboot.'
 echo
+
+fi
