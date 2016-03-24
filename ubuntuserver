@@ -43,38 +43,10 @@ echo 'The root user will be able to login via SSH with password.'
 echo 'The stupid reverse DNS lookup for sshd is now disabled.'
 echo
 
-apt-get install --assume-yes vim screen tmux
-echo
-echo 'Install additional packages.'
-echo
-
 mv /etc/vim/vimrc /etc/vim/vimrc.backup."$(date +%Y%m%d.%H%M%S)"
 echo > /etc/vim/vimrc 'se nocp uc=0 vi= nolpl rtp=$VIMRUNTIME mls=0 hid bs=2 ai ci pi et sts=4 sw=4 kp=:help fo=qn tw=79 sc shm+=I lcs=tab:>-,trail:.|sy off|filet off'
 update-alternatives --set editor /usr/bin/vim.basic
 echo
 echo '/etc/vim/vimrc is updated.'
 echo '/usr/bin/vim.basic is now the default text editor.'
-echo
-
-cp /etc/default/grub /etc/default/grub.backup."$(date +%Y%m%d.%H%M%S)"
-sed --in-place 's@^GRUB_HIDDEN_TIMEOUT=0$@#GRUB_HIDDEN_TIMEOUT=0@' /etc/default/grub
-sed --in-place 's@^GRUB_TIMEOUT=10$@#GRUB_TIMEOUT=2@' /etc/default/grub
-sed --in-place 's@^GRUB_CMDLINE_LINUX_DEFAULT="quiet splash"$@GRUB_CMDLINE_LINUX_DEFAULT=""@' /etc/default/grub
-update-grub
-echo
-echo 'The grub menu will show up now.'
-echo 'The grub menu will show up for only 2 seconds.'
-echo 'You will enter tty1 instead of tty7 when booting the system.'
-echo
-
-echo manual > /etc/init/lightdm.override
-echo
-echo 'GUI at tty7 will not be automatically started anymore.'
-echo 'Run `service lightdm start` as root in tty[1-6] if you do need that.'
-echo
-
-sed --in-place=".backup.$(date +%Y%m%d.%H%M%S)" 's@^XKBOPTIONS=.*$@XKBOPTIONS="ctrl:nocaps"@' /etc/default/keyboard
-dpkg-reconfigure --priority=high keyboard-configuration
-echo
-echo 'The capslock key will be an additional control key after reboot.'
 echo
