@@ -53,6 +53,8 @@ echo '/etc/vim/vimrc is updated.'
 echo '/usr/bin/vim.basic is now the default text editor.'
 echo
 
+
+
 if dpkg -l ubuntu-desktop &> /dev/null; then
 
 cp /etc/default/grub /etc/default/grub.backup."$(date +%Y%m%d.%H%M%S)"
