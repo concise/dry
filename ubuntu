@@ -1,5 +1,8 @@
 #!/bin/bash
 #
+# You would probably want to set a password or SSH public key for root account
+# and configure your network connectivity first before running the script.
+#
 # sudo su -
 # wget -O /tmp/ubuntu https://github.com/concise/dry/raw/master/ubuntu
 # bash /tmp/ubuntu
