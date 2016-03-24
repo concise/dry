@@ -62,7 +62,7 @@ if dpkg -l ubuntu-desktop &> /dev/null; then
 
 cp /etc/default/grub /etc/default/grub.backup."$(date +%Y%m%d.%H%M%S)"
 sed --in-place 's@^GRUB_HIDDEN_TIMEOUT=0$@#GRUB_HIDDEN_TIMEOUT=0@' /etc/default/grub
-sed --in-place 's@^GRUB_TIMEOUT=10$@#GRUB_TIMEOUT=2@' /etc/default/grub
+sed --in-place 's@^GRUB_TIMEOUT=10$@GRUB_TIMEOUT=2@' /etc/default/grub
 sed --in-place 's@^GRUB_CMDLINE_LINUX_DEFAULT="quiet splash"$@GRUB_CMDLINE_LINUX_DEFAULT=""@' /etc/default/grub
 update-grub
 echo
