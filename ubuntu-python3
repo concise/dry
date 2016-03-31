@@ -16,4 +16,4 @@ cd /tmp/Python-3.5.1
 ./configure
 make -j 8
 make install
-pip3 install --upgrade pip setuptools virtualenv
+pip3 install --upgrade pip setuptools
