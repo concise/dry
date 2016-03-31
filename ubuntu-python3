@@ -7,7 +7,7 @@
 
 set -e
 
-apt-get install -y libreadline-dev libssl-dev
+apt-get install -y make libreadline-dev libssl-dev
 wget -P /tmp https://www.python.org/ftp/python/3.5.1/Python-3.5.1.tar.xz
 openssl dgst -md5 /tmp/Python-3.5.1.tar.xz | grep e9ea6f2623fffcdd871b7b19113fde80
 rm -rf /tmp/Python-3.5.1
