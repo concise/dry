@@ -1,14 +1,14 @@
 #!/bin/bash
 #
 # sudo su -
-# wget -O /tmp/ubuntu-python3 https://github.com/concise/dry/raw/master/ubuntu-python3
+# wget -P /tmp https://github.com/concise/dry/raw/master/ubuntu-python3
 # bash /tmp/ubuntu-python3
 #
 
 set -e
 
 apt-get install -y libreadline-dev libssl-dev
-wget -O /tmp/Python-3.5.1.tgz https://www.python.org/ftp/python/3.5.1/Python-3.5.1.tgz
+wget -P /tmp https://www.python.org/ftp/python/3.5.1/Python-3.5.1.tgz
 openssl dgst -md5 /tmp/Python-3.5.1.tgz | grep be78e48cdfc1a7ad90efff146dce6cfe
 tar xzf /tmp/Python-3.5.1.tgz -C /tmp
 cd /tmp/Python-3.5.1

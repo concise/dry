@@ -4,7 +4,7 @@
 # and configure your network connectivity first before running the script.
 #
 # sudo su -
-# wget -O /tmp/ubuntu https://github.com/concise/dry/raw/master/ubuntu
+# wget -P /tmp https://github.com/concise/dry/raw/master/ubuntu
 # bash /tmp/ubuntu
 #
 
