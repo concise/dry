@@ -33,6 +33,7 @@ apt-get update
 apt-get dist-upgrade --assume-yes
 apt-get install --assume-yes openssh-server
 apt-get install --assume-yes vim tmux screen
+apt-get install --assume-yes build-essential
 echo
 echo 'System packages updated.'
 echo 'Installed: openssh-server'
