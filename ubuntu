@@ -28,7 +28,7 @@ echo
 echo 'System time updated.'
 echo
 
-sed --in-place=".backup.$(date +%Y%m%d.%H%M%S)" 's@//.*archive.ubuntu.com/@//mirror01.idc.hinet.net/@' /etc/apt/sources.list
+sed --in-place=".backup.$(date +%Y%m%d.%H%M%S)" 's@//.*archive.ubuntu.com/@//free.nchc.org.tw/@' /etc/apt/sources.list
 apt-get update
 apt-get dist-upgrade --assume-yes
 apt-get install --assume-yes openssh-server
