@@ -31,13 +31,10 @@ echo
 sed --in-place=".backup.$(date +%Y%m%d.%H%M%S)" 's@//.*archive.ubuntu.com/@//free.nchc.org.tw/@' /etc/apt/sources.list
 apt-get update
 apt-get dist-upgrade --assume-yes
-apt-get install --assume-yes openssh-server
-apt-get install --assume-yes vim tmux screen
-apt-get install --assume-yes build-essential
+apt-get install --assume-yes openssh-server vim tmux screen build-essential
 echo
 echo 'System packages updated.'
-echo 'Installed: openssh-server'
-echo 'Installed: vim tmux screen'
+echo 'Installed: openssh-server vim tmux screen build-essential'
 echo
 
 cp /etc/ssh/sshd_config /etc/ssh/sshd_config.backup."$(date +%Y%m%d.%H%M%S)"
