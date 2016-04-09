@@ -42,7 +42,7 @@ deb-src http://security.ubuntu.com/ubuntu/ trusty-security  main restricted univ
 '
 apt-get update
 apt-get dist-upgrade --assume-yes
-apt-get install --assume-yes openssh-server vim tmux screen build-essential
+apt-get install --assume-yes openssh-server vim git tmux screen build-essential
 echo
 echo 'System packages updated.'
 echo 'Installed: openssh-server vim tmux screen build-essential'
