@@ -19,6 +19,7 @@ printf %s 'Testing network connectivity... ' &&
 ping -q -c 6 -i 0.2 -W 2 8.8.8.8 &> /dev/null &&
 ping -q -c 6 -i 0.2 -W 2 ntp.ubuntu.com &> /dev/null &&
 ping -q -c 6 -i 0.2 -W 2 free.nchc.org.tw &> /dev/null &&
+ping -q -c 6 -i 0.2 -W 2 security.ubuntu.com &> /dev/null &&
 echo OK || { echo FAIL; false; }
 
 echo Asia/Taipei > /etc/timezone
