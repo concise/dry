@@ -31,14 +31,14 @@ echo
 
 mv /etc/apt/sources.list /etc/apt/sources.list.backup."$(date +%Y%m%d.%H%M%S)"
 echo > /etc/apt/sources.list '
-deb     http://free.nchc.org.tw/ubuntu/    trusty           main restricted universe multiverse
-deb-src http://free.nchc.org.tw/ubuntu/    trusty           main restricted universe multiverse
-deb     http://free.nchc.org.tw/ubuntu/    trusty-updates   main restricted universe multiverse
-deb-src http://free.nchc.org.tw/ubuntu/    trusty-updates   main restricted universe multiverse
-deb     http://free.nchc.org.tw/ubuntu/    trusty-backports main restricted universe multiverse
-deb-src http://free.nchc.org.tw/ubuntu/    trusty-backports main restricted universe multiverse
-deb     http://security.ubuntu.com/ubuntu/ trusty-security  main restricted universe multiverse
-deb-src http://security.ubuntu.com/ubuntu/ trusty-security  main restricted universe multiverse
+deb     http://free.nchc.org.tw/ubuntu/ trusty           main restricted universe multiverse
+deb-src http://free.nchc.org.tw/ubuntu/ trusty           main restricted universe multiverse
+deb     http://free.nchc.org.tw/ubuntu/ trusty-updates   main restricted universe multiverse
+deb-src http://free.nchc.org.tw/ubuntu/ trusty-updates   main restricted universe multiverse
+deb     http://free.nchc.org.tw/ubuntu/ trusty-backports main restricted universe multiverse
+deb-src http://free.nchc.org.tw/ubuntu/ trusty-backports main restricted universe multiverse
+deb     http://free.nchc.org.tw/ubuntu/ trusty-security  main restricted universe multiverse
+deb-src http://free.nchc.org.tw/ubuntu/ trusty-security  main restricted universe multiverse
 '
 apt-get update
 apt-get dist-upgrade --assume-yes
