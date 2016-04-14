@@ -45,7 +45,7 @@ apt-get dist-upgrade --assume-yes
 apt-get install --assume-yes openssh-server mosh vim git tmux screen build-essential
 echo
 echo 'System packages updated.'
-echo 'Installed: openssh-server mosh vim tmux screen build-essential'
+echo 'Installed: openssh-server mosh vim git tmux screen build-essential'
 echo
 
 cp /etc/ssh/sshd_config /etc/ssh/sshd_config.backup."$(date +%Y%m%d.%H%M%S)"
