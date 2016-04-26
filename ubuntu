@@ -2,13 +2,9 @@
 
 set -e
 
-[[ $( cat /etc/issue ) = 'Ubuntu 14.04'* ]] || { echo 'Error: This is not Ubuntu 14.04.'; false; }
-[[ $( id -u ) = 0 ]] || { echo 'Error: You are not root.'; false; }
-printf %s 'Testing network connectivity... ' &&
-ping -q -c 6 -i 0.2 -W 2 8.8.8.8 &> /dev/null &&
-ping -q -c 6 -i 0.2 -W 2 ntp.ubuntu.com &> /dev/null &&
-ping -q -c 6 -i 0.2 -W 2 free.nchc.org.tw &> /dev/null &&
-echo OK || { echo FAIL; false; }
+if [[ $( cat /etc/issue ) = 'Ubuntu 14.04'* ]]; then :; else echo 'Error: This is not Ubuntu 14.04.'; false; fi
+if [[ $( id -u ) = 0 ]]; then :; else echo 'Error: You are not root.'; false; fi
+if wget -q -O /dev/null https://duckduckgo.com/; then :; else echo 'Error: Cannot connect to the Internet.'; fi
 
 
 # http://archive.ubuntu.com/ubuntu/
@@ -54,15 +50,12 @@ if ! grep -q 'UseDNS' /etc/ssh/sshd_config; then echo 'UseDNS no' >> /etc/ssh/ss
 service ssh restart
 
 
-
 if dpkg -l ubuntu-desktop &> /dev/null; then
 
   sed --in-place=".backup.$(date +%Y%m%d.%H%M%S)" 's@^XKBOPTIONS=.*$@XKBOPTIONS="ctrl:nocaps"@' /etc/default/keyboard
   dpkg-reconfigure --priority=high keyboard-configuration
 
-
   echo manual > /etc/init/lightdm.override
-
 
   cp /etc/default/grub /etc/default/grub.backup."$(date +%Y%m%d.%H%M%S)"
   sed --in-place 's@^GRUB_HIDDEN_TIMEOUT=0$@#GRUB_HIDDEN_TIMEOUT=0@' /etc/default/grub
