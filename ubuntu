@@ -1,33 +1,15 @@
 #!/bin/bash
-#
-# You would probably want to set a password or SSH public key for root account
-# and configure your network connectivity first before running the script.
-#
-# sudo su -
-# wget -P /tmp https://github.com/concise/dry/raw/master/ubuntu
-# bash /tmp/ubuntu
-#
 
 set -e
 
-[[ $( cat /etc/issue ) = 'Ubuntu 14.04'* ]] ||
-{ echo 'Error: This is not Ubuntu 14.04.'; false; }
-
-test 0 = "$( id -u )" || { echo 'Error: You are not root.'; false; }
-
+[[ $( cat /etc/issue ) = 'Ubuntu 14.04'* ]] || { echo 'Error: This is not Ubuntu 14.04.'; false; }
+[[ $( id -u ) = 0 ]] || { echo 'Error: You are not root.'; false; }
 printf %s 'Testing network connectivity... ' &&
 ping -q -c 6 -i 0.2 -W 2 8.8.8.8 &> /dev/null &&
 ping -q -c 6 -i 0.2 -W 2 ntp.ubuntu.com &> /dev/null &&
 ping -q -c 6 -i 0.2 -W 2 free.nchc.org.tw &> /dev/null &&
-ping -q -c 6 -i 0.2 -W 2 security.ubuntu.com &> /dev/null &&
 echo OK || { echo FAIL; false; }
 
-echo Asia/Taipei > /etc/timezone
-dpkg-reconfigure --frontend=noninteractive tzdata
-ntpdate -u ntp.ubuntu.com
-echo
-echo 'System time updated.'
-echo
 
 mv /etc/apt/sources.list /etc/apt/sources.list.backup."$(date +%Y%m%d.%H%M%S)"
 echo > /etc/apt/sources.list '
@@ -41,55 +23,44 @@ deb     http://free.nchc.org.tw/ubuntu/ trusty-security  main restricted univers
 deb-src http://free.nchc.org.tw/ubuntu/ trusty-security  main restricted universe multiverse
 '
 apt-get update
+
+
+echo Asia/Taipei > /etc/timezone
+dpkg-reconfigure --frontend=noninteractive tzdata
+ntpdate -u ntp.ubuntu.com
+
+
 apt-get dist-upgrade --assume-yes
+
+
 apt-get install --assume-yes openssh-server mosh vim git tmux screen build-essential
-echo
-echo 'System packages updated.'
-echo 'Installed: openssh-server mosh vim git tmux screen build-essential'
-echo
+
+
+mv /etc/vim/vimrc /etc/vim/vimrc.backup."$(date +%Y%m%d.%H%M%S)"
+echo > /etc/vim/vimrc 'se nocp uc=0 vi= nolpl rtp=$VIMRUNTIME mls=0 hid bs=2 ai ci pi et sts=4 sw=4 kp=:help fo=qn tw=79 sc shm+=I lcs=tab:>-,trail:.|sy off|filet off'
+update-alternatives --set editor /usr/bin/vim.basic
+
 
 cp /etc/ssh/sshd_config /etc/ssh/sshd_config.backup."$(date +%Y%m%d.%H%M%S)"
 sed --in-place 's@^PermitRootLogin without-password$@PermitRootLogin yes@' /etc/ssh/sshd_config
 if ! grep -q 'UseDNS' /etc/ssh/sshd_config; then echo 'UseDNS no' >> /etc/ssh/sshd_config; fi
 service ssh restart
-echo
-echo 'The root user will be able to login via SSH with password.'
-echo 'The stupid reverse DNS lookup for sshd is now disabled.'
-echo
-
-mv /etc/vim/vimrc /etc/vim/vimrc.backup."$(date +%Y%m%d.%H%M%S)"
-echo > /etc/vim/vimrc 'se nocp uc=0 vi= nolpl rtp=$VIMRUNTIME mls=0 hid bs=2 ai ci pi et sts=4 sw=4 kp=:help fo=qn tw=79 sc shm+=I lcs=tab:>-,trail:.|sy off|filet off'
-update-alternatives --set editor /usr/bin/vim.basic
-echo
-echo '/etc/vim/vimrc is updated.'
-echo '/usr/bin/vim.basic is now the default text editor.'
-echo
 
 
 
 if dpkg -l ubuntu-desktop &> /dev/null; then
 
-cp /etc/default/grub /etc/default/grub.backup."$(date +%Y%m%d.%H%M%S)"
-sed --in-place 's@^GRUB_HIDDEN_TIMEOUT=0$@#GRUB_HIDDEN_TIMEOUT=0@' /etc/default/grub
-sed --in-place 's@^GRUB_TIMEOUT=10$@GRUB_TIMEOUT=2@' /etc/default/grub
-sed --in-place 's@^GRUB_CMDLINE_LINUX_DEFAULT="quiet splash"$@GRUB_CMDLINE_LINUX_DEFAULT=""@' /etc/default/grub
-update-grub
-echo
-echo 'The grub menu will show up now.'
-echo 'The grub menu will show up for only 2 seconds.'
-echo 'You will enter tty1 instead of tty7 when booting the system.'
-echo
+  sed --in-place=".backup.$(date +%Y%m%d.%H%M%S)" 's@^XKBOPTIONS=.*$@XKBOPTIONS="ctrl:nocaps"@' /etc/default/keyboard
+  dpkg-reconfigure --priority=high keyboard-configuration
 
-echo manual > /etc/init/lightdm.override
-echo
-echo 'GUI at tty7 will not be automatically started anymore.'
-echo 'Run `service lightdm start` as root in tty[1-6] if you do need that.'
-echo
 
-sed --in-place=".backup.$(date +%Y%m%d.%H%M%S)" 's@^XKBOPTIONS=.*$@XKBOPTIONS="ctrl:nocaps"@' /etc/default/keyboard
-dpkg-reconfigure --priority=high keyboard-configuration
-echo
-echo 'The capslock key will be an additional control key after reboot.'
-echo
+  echo manual > /etc/init/lightdm.override
+
+
+  cp /etc/default/grub /etc/default/grub.backup."$(date +%Y%m%d.%H%M%S)"
+  sed --in-place 's@^GRUB_HIDDEN_TIMEOUT=0$@#GRUB_HIDDEN_TIMEOUT=0@' /etc/default/grub
+  sed --in-place 's@^GRUB_TIMEOUT=10$@GRUB_TIMEOUT=2@' /etc/default/grub
+  sed --in-place 's@^GRUB_CMDLINE_LINUX_DEFAULT="quiet splash"$@GRUB_CMDLINE_LINUX_DEFAULT=""@' /etc/default/grub
+  update-grub
 
 fi
