@@ -58,7 +58,7 @@ deb-src $MIRROR trusty-security  main restricted universe multiverse"
 
 apt-get update
 apt-get dist-upgrade -y
-apt-get autoremove
+apt-get autoremove -y
 
 apt-get install -y build-essential git mosh openssh-server screen tmux vim
 
