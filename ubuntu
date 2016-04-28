@@ -1,12 +1,33 @@
 #!/bin/bash
 
-set -e
+test "${BASH_SOURCE[0]}" = "$0" || {
+    echo "Error: '${BASH_SOURCE[0]}' should not be sourced"
+    return 1
+}
 
-if [[ $( cat /etc/issue ) = 'Ubuntu 14.04'* ]]; then :; else echo 'Error: This is not Ubuntu 14.04.'; false; fi
-if [[ $( id -u ) = 0 ]]; then :; else echo 'Error: You are not root.'; false; fi
-if wget -q -O /dev/null https://duckduckgo.com/; then :; else echo 'Error: Cannot connect to the Internet.'; fi
+set -o pipefail         # proper status code for a pipeline
+set -o errexit          # -e exit when seeing a nonzero status code
+set -o nounset          # -u using unbound variable is an error
+shopt -s failglob       # pathname expansion failing is an error
+
+__my_exit_trap__ () {
+    local LAST_STATUS=$? LAST_COMMAND="$BASH_COMMAND"
+    if [[ $LAST_STATUS != 0 ]]
+    then
+        printf '\nCommand `%s` has nonzero exit status.\n\n' "$LAST_COMMAND"
+    fi
+}
+trap __my_exit_trap__ EXIT
 
 
+
+grep -q 'Ubuntu 14.04' /etc/issue
+test "$(id -u)" = 0
+wget -q -O /dev/null https://duckduckgo.com/
+
+
+
+#
 # http://archive.ubuntu.com/ubuntu/
 # http://free.nchc.org.tw/ubuntu/
 # http://mirrors.digitalocean.com/ubuntu/
@@ -14,18 +35,23 @@ if wget -q -O /dev/null https://duckduckgo.com/; then :; else echo 'Error: Canno
 # http://security.ubuntu.com/ubuntu/
 # http://tw.archive.ubuntu.com/ubuntu/
 # http://us.archive.ubuntu.com/ubuntu/
+#
+
 mv /etc/apt/sources.list /etc/apt/sources.list.backup."$(date +%Y%m%d.%H%M%S)"
-echo > /etc/apt/sources.list '
-deb     http://free.nchc.org.tw/ubuntu/ trusty           main restricted universe multiverse
-deb-src http://free.nchc.org.tw/ubuntu/ trusty           main restricted universe multiverse
-deb     http://free.nchc.org.tw/ubuntu/ trusty-updates   main restricted universe multiverse
-deb-src http://free.nchc.org.tw/ubuntu/ trusty-updates   main restricted universe multiverse
-deb     http://free.nchc.org.tw/ubuntu/ trusty-backports main restricted universe multiverse
-deb-src http://free.nchc.org.tw/ubuntu/ trusty-backports main restricted universe multiverse
-deb     http://free.nchc.org.tw/ubuntu/ trusty-security  main restricted universe multiverse
-deb-src http://free.nchc.org.tw/ubuntu/ trusty-security  main restricted universe multiverse
-'
+
+MIRROR=http://free.nchc.org.tw/ubuntu/
+echo > /etc/apt/sources.list "\
+deb     $MIRROR trusty           main restricted universe multiverse
+deb-src $MIRROR trusty           main restricted universe multiverse
+deb     $MIRROR trusty-updates   main restricted universe multiverse
+deb-src $MIRROR trusty-updates   main restricted universe multiverse
+deb     $MIRROR trusty-backports main restricted universe multiverse
+deb-src $MIRROR trusty-backports main restricted universe multiverse
+deb     $MIRROR trusty-security  main restricted universe multiverse
+deb-src $MIRROR trusty-security  main restricted universe multiverse"
+
 apt-get update
+
 
 
 echo Asia/Taipei > /etc/timezone
@@ -33,10 +59,10 @@ dpkg-reconfigure --frontend=noninteractive tzdata
 ntpdate -u ntp.ubuntu.com
 
 
+
 apt-get dist-upgrade --assume-yes
+apt-get install --assume-yes build-essential git iptables-persistent mosh openssh-server screen tmux vim
 
-
-apt-get install --assume-yes openssh-server mosh vim git tmux screen build-essential
 
 
 mv /etc/vim/vimrc /etc/vim/vimrc.backup."$(date +%Y%m%d.%H%M%S)"
@@ -44,23 +70,29 @@ echo > /etc/vim/vimrc 'se nocp uc=0 vi= nolpl rtp=$VIMRUNTIME mls=0 hid bs=2 ai 
 update-alternatives --set editor /usr/bin/vim.basic
 
 
+
 cp /etc/ssh/sshd_config /etc/ssh/sshd_config.backup."$(date +%Y%m%d.%H%M%S)"
 sed --in-place 's@^PermitRootLogin without-password$@PermitRootLogin yes@' /etc/ssh/sshd_config
-if ! grep -q 'UseDNS' /etc/ssh/sshd_config; then echo 'UseDNS no' >> /etc/ssh/sshd_config; fi
+if ! grep -q 'UseDNS' /etc/ssh/sshd_config
+then
+    echo 'UseDNS no' >> /etc/ssh/sshd_config
+fi
 service ssh restart
 
 
-if dpkg -l ubuntu-desktop &> /dev/null; then
 
-  sed --in-place=".backup.$(date +%Y%m%d.%H%M%S)" 's@^XKBOPTIONS=.*$@XKBOPTIONS="ctrl:nocaps"@' /etc/default/keyboard
-  dpkg-reconfigure --priority=high keyboard-configuration
+if dpkg -l ubuntu-desktop &> /dev/null
+then
 
-  echo manual > /etc/init/lightdm.override
+    sed --in-place=".backup.$(date +%Y%m%d.%H%M%S)" 's@^XKBOPTIONS=.*$@XKBOPTIONS="ctrl:nocaps"@' /etc/default/keyboard
+    dpkg-reconfigure --priority=high keyboard-configuration
 
-  cp /etc/default/grub /etc/default/grub.backup."$(date +%Y%m%d.%H%M%S)"
-  sed --in-place 's@^GRUB_HIDDEN_TIMEOUT=0$@#GRUB_HIDDEN_TIMEOUT=0@' /etc/default/grub
-  sed --in-place 's@^GRUB_TIMEOUT=10$@GRUB_TIMEOUT=2@' /etc/default/grub
-  sed --in-place 's@^GRUB_CMDLINE_LINUX_DEFAULT="quiet splash"$@GRUB_CMDLINE_LINUX_DEFAULT=""@' /etc/default/grub
-  update-grub
+    echo manual > /etc/init/lightdm.override
+
+    cp /etc/default/grub /etc/default/grub.backup."$(date +%Y%m%d.%H%M%S)"
+    sed --in-place 's@^GRUB_HIDDEN_TIMEOUT=0$@#GRUB_HIDDEN_TIMEOUT=0@' /etc/default/grub
+    sed --in-place 's@^GRUB_TIMEOUT=10$@GRUB_TIMEOUT=2@' /etc/default/grub
+    sed --in-place 's@^GRUB_CMDLINE_LINUX_DEFAULT="quiet splash"$@GRUB_CMDLINE_LINUX_DEFAULT=""@' /etc/default/grub
+    update-grub
 
 fi
