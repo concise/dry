@@ -27,6 +27,12 @@ wget -q -O /dev/null https://duckduckgo.com/
 
 
 
+echo Asia/Taipei > /etc/timezone
+dpkg-reconfigure --frontend=noninteractive tzdata
+ntpdate -u ntp.ubuntu.com
+
+
+
 #
 # http://archive.ubuntu.com/ubuntu/
 # http://free.nchc.org.tw/ubuntu/
@@ -51,17 +57,15 @@ deb     $MIRROR trusty-security  main restricted universe multiverse
 deb-src $MIRROR trusty-security  main restricted universe multiverse"
 
 apt-get update
+apt-get dist-upgrade -y
+apt-get autoremove
 
+apt-get install -y build-essential git mosh openssh-server screen tmux vim
 
-
-echo Asia/Taipei > /etc/timezone
-dpkg-reconfigure --frontend=noninteractive tzdata
-ntpdate -u ntp.ubuntu.com
-
-
-
-apt-get dist-upgrade --assume-yes
-apt-get install --assume-yes build-essential git iptables-persistent mosh openssh-server screen tmux vim
+debconf-set-selections <<<'
+iptables-persistent iptables-persistent/autosave_v4 boolean true
+iptables-persistent iptables-persistent/autosave_v6 boolean true'
+apt-get install -y iptables-persistent
 
 
 
