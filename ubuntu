@@ -34,13 +34,13 @@ ntpdate -u ntp.ubuntu.com
 
 
 #
-# http://archive.ubuntu.com/ubuntu/
-# http://free.nchc.org.tw/ubuntu/
-# http://mirrors.digitalocean.com/ubuntu/
-# http://mirrors.linode.com/ubuntu/
-# http://security.ubuntu.com/ubuntu/
-# http://tw.archive.ubuntu.com/ubuntu/
-# http://us.archive.ubuntu.com/ubuntu/
+# MIRROR=http://archive.ubuntu.com/ubuntu/
+# MIRROR=http://free.nchc.org.tw/ubuntu/
+# MIRROR=http://mirrors.digitalocean.com/ubuntu/
+# MIRROR=http://mirrors.linode.com/ubuntu/
+# MIRROR=http://security.ubuntu.com/ubuntu/
+# MIRROR=http://tw.archive.ubuntu.com/ubuntu/
+# MIRROR=http://us.archive.ubuntu.com/ubuntu/
 #
 
 mv /etc/apt/sources.list /etc/apt/sources.list.backup."$(date +%Y%m%d.%H%M%S)"
