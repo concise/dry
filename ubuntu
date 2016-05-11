@@ -30,7 +30,6 @@ wget -q -O /dev/null https://duckduckgo.com/
 
 echo Asia/Taipei > /etc/timezone
 dpkg-reconfigure --frontend=noninteractive tzdata
-ntpdate -u ntp.ubuntu.com
 
 
 
