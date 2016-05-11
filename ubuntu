@@ -21,7 +21,8 @@ trap __my_exit_trap__ EXIT
 
 
 
-grep -q 'Ubuntu 14.04' /etc/issue
+grep -q 'Ubuntu 14.04\|Ubuntu 16.04' /etc/issue
+test -n "$BASH_VERSION"
 test "$(id -u)" = 0
 wget -q -O /dev/null https://duckduckgo.com/
 
@@ -33,20 +34,17 @@ ntpdate -u ntp.ubuntu.com
 
 
 
-#
-# MIRROR=http://archive.ubuntu.com/ubuntu/
-# MIRROR=http://free.nchc.org.tw/ubuntu/
-# MIRROR=http://mirrors.digitalocean.com/ubuntu/
-# MIRROR=http://mirrors.linode.com/ubuntu/
-# MIRROR=http://security.ubuntu.com/ubuntu/
-# MIRROR=http://tw.archive.ubuntu.com/ubuntu/
-# MIRROR=http://us.archive.ubuntu.com/ubuntu/
-#
+#MIRROR=http://archive.ubuntu.com/ubuntu/
+#MIRROR=http://mirrors.digitalocean.com/ubuntu/
+#MIRROR=http://mirrors.linode.com/ubuntu/
+#MIRROR=http://security.ubuntu.com/ubuntu/
+#MIRROR=http://tw.archive.ubuntu.com/ubuntu/
+#MIRROR=http://us.archive.ubuntu.com/ubuntu/
+MIRROR=http://free.nchc.org.tw/ubuntu/
 
 mv /etc/apt/sources.list /etc/apt/sources.list.backup."$(date +%Y%m%d.%H%M%S)"
 
-MIRROR=http://free.nchc.org.tw/ubuntu/
-echo > /etc/apt/sources.list "\
+grep -q 'Ubuntu 14.04' /etc/issue && echo > /etc/apt/sources.list "
 deb     $MIRROR trusty           main restricted universe multiverse
 deb-src $MIRROR trusty           main restricted universe multiverse
 deb     $MIRROR trusty-updates   main restricted universe multiverse
@@ -54,23 +52,24 @@ deb-src $MIRROR trusty-updates   main restricted universe multiverse
 deb     $MIRROR trusty-backports main restricted universe multiverse
 deb-src $MIRROR trusty-backports main restricted universe multiverse
 deb     $MIRROR trusty-security  main restricted universe multiverse
-deb-src $MIRROR trusty-security  main restricted universe multiverse"
+deb-src $MIRROR trusty-security  main restricted universe multiverse
+"
+
+grep -q 'Ubuntu 16.04' /etc/issue && echo > /etc/apt/sources.list "
+deb     $MIRROR xenial           main restricted universe multiverse
+deb-src $MIRROR xenial           main restricted universe multiverse
+deb     $MIRROR xenial-updates   main restricted universe multiverse
+deb-src $MIRROR xenial-updates   main restricted universe multiverse
+deb     $MIRROR xenial-backports main restricted universe multiverse
+deb-src $MIRROR xenial-backports main restricted universe multiverse
+deb     $MIRROR xenial-security  main restricted universe multiverse
+deb-src $MIRROR xenial-security  main restricted universe multiverse
+"
 
 apt-get update
 apt-get dist-upgrade -y
 apt-get autoremove -y
-
-apt-get install -y git gnupg2 htop mosh openssh-server screen tig tmux vim
-
-apt-get install -y build-essential exuberant-ctags gdb valgrind
-
-apt-get install -y --no-install-recommends mercurial
-
-debconf-set-selections <<<'
-    iptables-persistent iptables-persistent/autosave_v4 boolean true
-    iptables-persistent iptables-persistent/autosave_v6 boolean true
-'
-apt-get install -y iptables-persistent
+apt-get install -y build-essential exuberant-ctags gdb git gnupg2 htop mosh openssh-server screen tig tmux valgrind vim
 
 
 
@@ -95,13 +94,5 @@ then
 
     sed --in-place=".backup.$(date +%Y%m%d.%H%M%S)" 's@^XKBOPTIONS=.*$@XKBOPTIONS="ctrl:nocaps"@' /etc/default/keyboard
     dpkg-reconfigure --priority=high keyboard-configuration
-
-    echo manual > /etc/init/lightdm.override
-
-    cp /etc/default/grub /etc/default/grub.backup."$(date +%Y%m%d.%H%M%S)"
-    sed --in-place 's@^GRUB_HIDDEN_TIMEOUT=0$@#GRUB_HIDDEN_TIMEOUT=0@' /etc/default/grub
-    sed --in-place 's@^GRUB_TIMEOUT=10$@GRUB_TIMEOUT=2@' /etc/default/grub
-    sed --in-place 's@^GRUB_CMDLINE_LINUX_DEFAULT="quiet splash"$@GRUB_CMDLINE_LINUX_DEFAULT=""@' /etc/default/grub
-    update-grub
 
 fi
