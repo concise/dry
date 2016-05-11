@@ -19,19 +19,21 @@ __my_exit_trap__ () {
 }
 trap __my_exit_trap__ EXIT
 
-
+##############################################################################
 
 test -n "$BASH_VERSION"
 grep -q 'Ubuntu 14.04\|Ubuntu 16.04' /etc/issue
 test "$(id -u)" = 0
 wget -q -O /dev/null https://duckduckgo.com/
 
-
+##############################################################################
 
 echo Asia/Taipei > /etc/timezone
 dpkg-reconfigure --frontend=noninteractive tzdata
 
+##############################################################################
 
+mv /etc/apt/sources.list /etc/apt/sources.list.bak."$(date +%Y%m%d.%H%M%S)"
 
 #MIRROR=http://archive.ubuntu.com/ubuntu/
 #MIRROR=http://mirrors.digitalocean.com/ubuntu/
@@ -40,8 +42,6 @@ dpkg-reconfigure --frontend=noninteractive tzdata
 #MIRROR=http://tw.archive.ubuntu.com/ubuntu/
 #MIRROR=http://us.archive.ubuntu.com/ubuntu/
 MIRROR=http://free.nchc.org.tw/ubuntu/
-
-mv /etc/apt/sources.list /etc/apt/sources.list.backup."$(date +%Y%m%d.%H%M%S)"
 
 grep -q 'Ubuntu 14.04' /etc/issue && echo > /etc/apt/sources.list "
 deb     $MIRROR trusty           main restricted universe multiverse
@@ -65,39 +65,34 @@ deb     $MIRROR xenial-security  main restricted universe multiverse
 deb-src $MIRROR xenial-security  main restricted universe multiverse
 "
 
+##############################################################################
+
 apt-get update
 apt-get dist-upgrade -y
 apt-get autoremove -y
 apt-get install -y build-essential exuberant-ctags gdb git gnupg2 htop mosh openssh-server screen tig tmux valgrind vim
 
+##############################################################################
 
-
-mv /etc/vim/vimrc /etc/vim/vimrc.backup."$(date +%Y%m%d.%H%M%S)"
+mv /etc/vim/vimrc /etc/vim/vimrc.bak."$(date +%Y%m%d.%H%M%S)"
 echo > /etc/vim/vimrc 'se nocp uc=0 vi= nolpl rtp=$VIMRUNTIME mls=0 hid bs=2 ai ci pi et sts=4 sw=4 kp=:help fo=qn tw=79 sc shm+=I lcs=tab:>-,trail:.|sy off|filet off'
 update-alternatives --set editor /usr/bin/vim.basic
 
+##############################################################################
 
-
-cp /etc/ssh/sshd_config /etc/ssh/sshd_config.backup."$(date +%Y%m%d.%H%M%S)"
-sed --in-place 's@^PermitRootLogin without-password$@PermitRootLogin yes@' /etc/ssh/sshd_config
+cp /etc/ssh/sshd_config /etc/ssh/sshd_config.bak."$(date +%Y%m%d.%H%M%S)"
+sed -i 's@^PermitRootLogin.*$@PermitRootLogin yes@' /etc/ssh/sshd_config
 if ! grep -q 'UseDNS' /etc/ssh/sshd_config
 then
     echo 'UseDNS no' >> /etc/ssh/sshd_config
 fi
 service ssh restart
 
-
+##############################################################################
 
 if dpkg -l ubuntu-desktop &> /dev/null
 then
-
-    sed --in-place=".backup.$(date +%Y%m%d.%H%M%S)" 's@^XKBOPTIONS=.*$@XKBOPTIONS="ctrl:nocaps"@' /etc/default/keyboard
+    cp /etc/default/keyboard /etc/default/keyboard.bak."$(date +%Y%m%d.%H%M%S)"
+    sed -i 's@^XKBOPTIONS=.*$@XKBOPTIONS="ctrl:nocaps"@' /etc/default/keyboard
     dpkg-reconfigure --priority=high keyboard-configuration
-
-    cp /etc/default/grub /etc/default/grub.backup."$(date +%Y%m%d.%H%M%S)"
-    sed --in-place 's@^GRUB_HIDDEN_TIMEOUT=0$@#GRUB_HIDDEN_TIMEOUT=0@' /etc/default/grub
-    sed --in-place 's@^GRUB_TIMEOUT=10$@GRUB_TIMEOUT=2@' /etc/default/grub
-    sed --in-place 's@^GRUB_CMDLINE_LINUX_DEFAULT="quiet splash"$@GRUB_CMDLINE_LINUX_DEFAULT=""@' /etc/default/grub
-    update-grub
-
 fi
