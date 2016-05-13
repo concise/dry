@@ -22,7 +22,7 @@ trap __my_exit_trap__ EXIT
 ##############################################################################
 
 test -n "$BASH_VERSION"
-grep -q 'Ubuntu 14.04\|Ubuntu 16.04' /etc/issue
+grep -q 'Ubuntu 16.04\|Ubuntu 14.04' /etc/issue
 test "$(id -u)" = 0
 wget -q -O /dev/null https://duckduckgo.com/
 
@@ -43,17 +43,6 @@ mv /etc/apt/sources.list /etc/apt/sources.list.bak."$(date +%Y%m%d.%H%M%S)"
 #MIRROR=http://us.archive.ubuntu.com/ubuntu/
 MIRROR=http://free.nchc.org.tw/ubuntu/
 
-grep -q 'Ubuntu 14.04' /etc/issue && echo > /etc/apt/sources.list "
-deb     $MIRROR trusty           main restricted universe multiverse
-deb-src $MIRROR trusty           main restricted universe multiverse
-deb     $MIRROR trusty-updates   main restricted universe multiverse
-deb-src $MIRROR trusty-updates   main restricted universe multiverse
-deb     $MIRROR trusty-backports main restricted universe multiverse
-deb-src $MIRROR trusty-backports main restricted universe multiverse
-deb     $MIRROR trusty-security  main restricted universe multiverse
-deb-src $MIRROR trusty-security  main restricted universe multiverse
-"
-
 grep -q 'Ubuntu 16.04' /etc/issue && echo > /etc/apt/sources.list "
 deb     $MIRROR xenial           main restricted universe multiverse
 deb-src $MIRROR xenial           main restricted universe multiverse
@@ -63,6 +52,17 @@ deb     $MIRROR xenial-backports main restricted universe multiverse
 deb-src $MIRROR xenial-backports main restricted universe multiverse
 deb     $MIRROR xenial-security  main restricted universe multiverse
 deb-src $MIRROR xenial-security  main restricted universe multiverse
+"
+
+grep -q 'Ubuntu 14.04' /etc/issue && echo > /etc/apt/sources.list "
+deb     $MIRROR trusty           main restricted universe multiverse
+deb-src $MIRROR trusty           main restricted universe multiverse
+deb     $MIRROR trusty-updates   main restricted universe multiverse
+deb-src $MIRROR trusty-updates   main restricted universe multiverse
+deb     $MIRROR trusty-backports main restricted universe multiverse
+deb-src $MIRROR trusty-backports main restricted universe multiverse
+deb     $MIRROR trusty-security  main restricted universe multiverse
+deb-src $MIRROR trusty-security  main restricted universe multiverse
 "
 
 ##############################################################################
