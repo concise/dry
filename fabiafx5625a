@@ -42,20 +42,27 @@ auto lo
 iface lo inet loopback
 
 auto ens32
-auto ens33
-auto ens34
-auto ens35
-auto ens36
-auto enp9s0
-auto enp10s0
-auto enp11s0
 iface ens32 inet manual
+
+auto ens33
 iface ens33 inet manual
+
+auto ens34
 iface ens34 inet manual
+
+auto ens35
 iface ens35 inet manual
+
+auto ens36
 iface ens36 inet manual
+
+auto enp9s0
 iface enp9s0 inet manual
+
+auto enp10s0
 iface enp10s0 inet manual
+
+auto enp11s0
 iface enp11s0 inet manual
 
 allow-hotplug ovs0
