@@ -33,10 +33,11 @@ grep -q '3c:a8:2a:7f:b2:9d' /sys/class/net/enp8s0/address
 
 echo > /etc/network/interfaces '
 auto lo
-auto enp8s0
 iface lo inet loopback
+
+auto enp8s0
 iface enp8s0 inet static
-  address 172.25.0.1/24
+        address 172.25.0.1/24
 '
 
 ifdown enp8s0

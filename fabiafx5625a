@@ -67,9 +67,9 @@ iface enp11s0 inet manual
 
 allow-hotplug ovs0
 iface ovs0 inet static
-  address 172.25.0.2/24
-  gateway 172.25.0.1
-  dns-nameservers 8.8.8.8 8.8.4.4
+        address 172.25.0.2/24
+        gateway 172.25.0.1
+        dns-nameservers 8.8.8.8 8.8.4.4
 '
 
 ifdown ens32
