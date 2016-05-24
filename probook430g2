@@ -88,3 +88,17 @@ subnet 172.25.0.0 netmask 255.255.255.0 {
 '
 
 service isc-dhcp-server restart
+
+##############################################################################
+
+echo '
+
+If you want to restart the DHCP server:
+
+	service isc-dhcp-server restart
+
+If you want to see a list of all current DHCP leases:
+
+	dhcp-lease-list --lease /var/lib/dhcp/dhcpd.leases
+
+'
