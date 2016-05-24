@@ -1,0 +1,101 @@
+#!/bin/bash
+
+test "${BASH_SOURCE[0]}" = "$0" || {
+    echo "Error: '${BASH_SOURCE[0]}' should not be sourced"
+    return 1
+}
+
+set -o pipefail         # proper status code for a pipeline
+set -o errexit          # -e exit when seeing a nonzero status code
+set -o nounset          # -u using unbound variable is an error
+shopt -s failglob       # pathname expansion failing is an error
+
+__my_exit_trap__ () {
+    local LAST_STATUS=$? LAST_COMMAND="$BASH_COMMAND"
+    if [[ $LAST_STATUS != 0 ]]
+    then
+        printf '\nCommand `%s` has nonzero exit status.\n\n' "$LAST_COMMAND"
+    fi
+}
+trap __my_exit_trap__ EXIT
+
+##############################################################################
+
+# make sure we are executing this bash script on the expected machine
+
+grep -q 'Ubuntu 16.04' /etc/issue
+test -e /sys/class/net/ens32
+test -e /sys/class/net/ens33
+test -e /sys/class/net/ens34
+test -e /sys/class/net/ens35
+test -e /sys/class/net/ens36
+test -e /sys/class/net/enp9s0
+test -e /sys/class/net/enp10s0
+test -e /sys/class/net/enp11s0
+
+##############################################################################
+
+# set up the network interfaces for our virtual switch
+
+echo > /etc/network/interfaces '
+auto lo
+iface lo inet loopback
+
+auto ens32
+auto ens33
+auto ens34
+auto ens35
+auto ens36
+auto enp9s0
+auto enp10s0
+auto enp11s0
+iface ens32 inet manual
+iface ens33 inet manual
+iface ens34 inet manual
+iface ens35 inet manual
+iface ens36 inet manual
+iface enp9s0 inet manual
+iface enp10s0 inet manual
+iface enp11s0 inet manual
+
+allow-hotplug ovs0
+iface ovs0 inet static
+  address 172.25.0.2/24
+  gateway 172.25.0.1
+  dns-nameservers 8.8.8.8 8.8.4.4
+'
+
+ifdown ens32
+ifdown ens33
+ifdown ens34
+ifdown ens35
+ifdown ens36
+ifdown enp9s0
+ifdown enp10s0
+ifdown enp11s0
+
+##############################################################################
+
+if ! dpkg -s openvswitch-switch &> /dev/null; then
+  apt-get install -y openvswitch-switch
+fi
+
+dhclient -v -r
+
+ovs-vsctl --may-exist add-br ovs0
+ovs-vsctl --may-exist add-port ovs0 ens32
+ovs-vsctl --may-exist add-port ovs0 ens33
+ovs-vsctl --may-exist add-port ovs0 ens34
+ovs-vsctl --may-exist add-port ovs0 ens35
+ovs-vsctl --may-exist add-port ovs0 ens36
+ovs-vsctl --may-exist add-port ovs0 enp9s0
+ovs-vsctl --may-exist add-port ovs0 enp10s0
+ovs-vsctl --may-exist add-port ovs0 enp11s0
+ovs-vsctl set bridge ovs0 other-config:hwaddr=53:ae:74:96:89:0a
+ovs-vsctl set-controller ovs0 tcp:172.25.0.1:6653
+
+ovs-ofctl del-flows ovs0
+ovs-ofctl add-flow ovs0 'priority=0,actions=NORMAL'
+
+ifdown ovs0
+ifup ovs0

