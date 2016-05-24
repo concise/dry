@@ -23,6 +23,7 @@ trap __my_exit_trap__ EXIT
 
 # make sure we are executing this bash script on the expected machine
 
+test "$(id -u)" = 0
 grep -q 'Ubuntu 16.04' /etc/issue
 test -e /sys/class/net/ens32
 test -e /sys/class/net/ens33
