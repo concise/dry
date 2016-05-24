@@ -48,7 +48,7 @@ ifup enp8s0
 
 echo > /etc/sysctl.conf 'net.ipv4.ip_forward=1'
 
-sysctl -p
+sysctl -p > /dev/null
 
 [[ "$(< /proc/sys/net/ipv4/ip_forward )" == 1 ]]
 
@@ -61,7 +61,7 @@ fi
 iptables -t nat -F
 iptables -t nat -A POSTROUTING ! -o enp8s0 -j MASQUERADE
 
-service netfilter-persistent save
+service netfilter-persistent save &> /dev/null
 
 ##############################################################################
 
