@@ -105,7 +105,8 @@ command -v ryu-manager > /dev/null
 
 cat > /usr/local/bin/mitm.py <<'MY_RYU_APP'
 #!/bin/sh
-''''exec /usr/bin/env ryu-manager --verbose --ofp-listen-host 172.25.0.1 --ofp-tcp-listen-port 6653 "$0" #' '''
+''''exec /usr/bin/env ryu-manager --verbose --ofp-listen-host 172.25.0.1 --ofp-tcp-listen-port 6653 "$0"
+'''
 
 REAL_SERVER = ('140.112.8.116', 80)
 FAKE_SERVER = ('140.109.20.229', 80)
@@ -179,14 +180,14 @@ echo '
 
 If you want to restart the DHCP server:
 
-	service isc-dhcp-server restart
+        service isc-dhcp-server restart
 
 If you want to see a list of all current DHCP leases:
 
-	dhcp-lease-list --lease /var/lib/dhcp/dhcpd.leases
+        dhcp-lease-list --lease /var/lib/dhcp/dhcpd.leases
 
 If you want to run the evil man-in-the-middle controller:
 
-	mitm.py
+        mitm.py
 
 '
