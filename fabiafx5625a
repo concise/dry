@@ -76,6 +76,8 @@ ifdown enp11s0
 
 ##############################################################################
 
+# set up a virtual switch
+
 if ! dpkg -s openvswitch-switch &> /dev/null; then
   apt-get install -y openvswitch-switch
 fi

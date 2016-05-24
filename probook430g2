@@ -171,6 +171,8 @@ chmod +x /usr/local/bin/mitm.py
 
 ##############################################################################
 
+# print some information to the screen
+
 echo '
 
 If you want to restart the DHCP server:
