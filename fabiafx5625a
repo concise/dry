@@ -68,6 +68,7 @@ iface enp11s0 inet manual
 
 allow-hotplug ovs0
 iface ovs0 inet static
+        post-up ovs-vsctl set bridge ovs0 other-config:hwaddr=53:ae:74:96:89:0a
         address 172.24.0.2/30
 '
 
