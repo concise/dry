@@ -67,7 +67,10 @@ auto enp11s0
 iface enp11s0 inet manual
 
 allow-hotplug ovs0
-iface ovs0 inet static
+iface ovs0 inet manual
+
+allow-hotplug vlan0
+iface vlan0 inet static
         address 172.24.0.2/30
 '
 
@@ -99,5 +102,6 @@ ovs-vsctl --may-exist add-port ovs0 ens36
 ovs-vsctl --may-exist add-port ovs0 enp9s0
 ovs-vsctl --may-exist add-port ovs0 enp10s0
 ovs-vsctl --may-exist add-port ovs0 enp11s0
+ovs-vsctl --may-exist add-port ovs0 vlan0 -- set interface vlan0 type=internal
 
 ovs-vsctl set-controller ovs0 tcp:172.24.0.1:6653
