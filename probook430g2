@@ -39,6 +39,8 @@ iface lo inet loopback
 auto enp8s0
 iface enp8s0 inet static
         address 172.25.0.1/24
+        post-up  ip address add 172.24.0.1/30 dev enp8s0 label enp8s0:0
+        pre-down ip address del 172.24.0.1/30 dev enp8s0 label enp8s0:0
 '
 
 ifdown enp8s0
@@ -82,10 +84,6 @@ option domain-name-servers 8.8.8.8, 8.8.4.4;
 subnet 172.25.0.0 netmask 255.255.255.0 {
   range 172.25.0.10 172.25.0.254;
   option routers 172.25.0.1;
-  host fabiafx5625a {
-    hardware ethernet 53:ae:74:96:89:0a;
-    fixed-address 172.25.0.2;
-  }
 }
 '
 
