@@ -69,12 +69,6 @@ iface enp11s0 inet manual
 allow-hotplug ovs0
 iface ovs0 inet static
         address 172.24.0.2/30
-
-allow-hotplug ovs0o
-iface ovs0o inet static
-        address 172.25.0.2/24
-        gateway 172.25.0.1
-        dns-nameservers 8.8.8.8 8.8.4.4
 '
 
 ifdown ens32
@@ -106,8 +100,7 @@ ovs-vsctl --may-exist add-port ovs0 enp9s0
 ovs-vsctl --may-exist add-port ovs0 enp10s0
 ovs-vsctl --may-exist add-port ovs0 enp11s0
 
-ovs-vsctl --may-exist add-port ovs0 ovs0o -- set interface ovs0o type=internal
-
+ovs-vsctl set bridge ovs0 other-config:hwaddr=53:ae:74:96:89:0a
 ovs-vsctl set-controller ovs0 tcp:172.24.0.1:6653
 
 ovs-ofctl del-flows ovs0

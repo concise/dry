@@ -84,6 +84,10 @@ option domain-name-servers 8.8.8.8, 8.8.4.4;
 subnet 172.25.0.0 netmask 255.255.255.0 {
   range 172.25.0.10 172.25.0.254;
   option routers 172.25.0.1;
+  host fabiafx5625a {
+    hardware ethernet 53:ae:74:96:89:0a;
+    fixed-address 172.25.0.2;
+  }
 }
 '
 
