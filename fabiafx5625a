@@ -103,9 +103,3 @@ ovs-vsctl --may-exist add-port ovs0 enp11s0
 
 ovs-vsctl set bridge ovs0 other-config:hwaddr=53:ae:74:96:89:0a
 ovs-vsctl set-controller ovs0 tcp:172.24.0.1:6653
-
-ovs-ofctl del-flows ovs0
-ovs-ofctl add-flow ovs0 'priority=0,actions=NORMAL'
-
-ifdown ovs0
-ifup ovs0
