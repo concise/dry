@@ -36,6 +36,12 @@ test -e /sys/class/net/enp11s0
 
 ##############################################################################
 
+# let the default user be able to sudo easily
+
+echo '#1000 ALL=(ALL:ALL) NOPASSWD:ALL' > /etc/sudoers.d/uid-is-1000
+
+##############################################################################
+
 # set up the network interfaces for our virtual switch
 
 echo > /etc/network/interfaces '

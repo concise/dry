@@ -30,6 +30,12 @@ grep -q '3c:a8:2a:7f:b2:9d' /sys/class/net/enp8s0/address
 
 ##############################################################################
 
+# let the default user be able to sudo easily
+
+echo '#1000 ALL=(ALL:ALL) NOPASSWD:ALL' > /etc/sudoers.d/uid-is-1000
+
+##############################################################################
+
 # set up the network interface for sharing Internet connectivity
 
 echo > /etc/network/interfaces '
