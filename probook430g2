@@ -69,7 +69,7 @@ if ! dpkg -s iptables-persistent &> /dev/null; then
 fi
 
 iptables -t nat -F
-iptables -t nat -A POSTROUTING ! -o enp8s0 -j MASQUERADE
+iptables -t nat -A POSTROUTING -s 172.25.0.0/24 ! -o enp8s0 -j MASQUERADE
 
 service netfilter-persistent save &> /dev/null
 
