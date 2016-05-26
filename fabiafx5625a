@@ -77,7 +77,7 @@ iface ovs0 inet manual
 
 allow-hotplug vlan0
 iface vlan0 inet static
-        address 172.24.0.2/30
+        address 172.24.0.2/24
 '
 
 ifdown ens32
