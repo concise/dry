@@ -97,101 +97,209 @@ service isc-dhcp-server restart
 
 ##############################################################################
 
-# set up a Ryu man-in-the-middle controller
+# scripts for generate keys and certificates
 
-if ! command -v ryu-manager > /dev/null; then
-  if ! command -v pip3 > /dev/null; then
-    apt-get install -y python3-pip
-  fi
-  pip3 install ryu
-fi
-command -v ryu-manager > /dev/null
+mkdir -p /cert
+chmod go= /cert
+cat > /cert/certgen <<'CERTGEN'
+#!/bin/bash
 
-cat > /usr/local/bin/mitm.py <<'MY_RYU_APP'
-#!/bin/sh
-''''exec /usr/bin/env ryu-manager --verbose --ofp-listen-host 172.24.0.1 --ofp-tcp-listen-port 6653 "$0"
-'''
+test "${BASH_SOURCE[0]}" = "$0" || {
+    echo "Error: '${BASH_SOURCE[0]}' should not be sourced"
+    return 1
+}
 
-REAL_SERVER = ('140.112.8.116', 80)
-FAKE_SERVER = ('140.109.20.229', 80)
+set -o pipefail         # proper status code for a pipeline
+set -o errexit          # -e exit when seeing a nonzero status code
+set -o nounset          # -u using unbound variable is an error
+shopt -s failglob       # pathname expansion failing is an error
 
-from ryu.base import app_manager
-from ryu.controller import handler
-from ryu.controller import ofp_event
-from ryu.ofproto import ofproto_v1_3
-
-class MitmSwitch(app_manager.RyuApp):
-
-    OFP_VERSIONS = [ofproto_v1_3.OFP_VERSION]
-
-    def __init__(self, *args, **kwargs):
-        super(MitmSwitch, self).__init__(*args, **kwargs)
-
-    @handler.set_ev_cls(ofp_event.EventOFPSwitchFeatures, handler.CONFIG_DISPATCHER)
-    def switch_features_handler(self, ev):
-        datapath = ev.msg.datapath
-        ofp = datapath.ofproto
-        ofp_parser = datapath.ofproto_parser
-
-        del_all_flows(datapath)
-
-        match = ofp_parser.OFPMatch()
-        actions = [ofp_parser.OFPActionOutput(ofp.OFPP_NORMAL)]
-        add_flow(datapath, match, actions, priority=0)
-
-        match = ofp_parser.OFPMatch(eth_type=0x0800, ip_proto=6,
-                                    ipv4_dst=REAL_SERVER[0],
-                                    tcp_dst=REAL_SERVER[1])
-        actions = [ofp_parser.OFPActionSetField(ipv4_dst=FAKE_SERVER[0]),
-                   ofp_parser.OFPActionSetField(tcp_dst=FAKE_SERVER[1]),
-                   ofp_parser.OFPActionOutput(ofp.OFPP_NORMAL)]
-        add_flow(datapath, match, actions, priority=65535)
-
-        match = ofp_parser.OFPMatch(eth_type=0x0800, ip_proto=6,
-                                    ipv4_src=FAKE_SERVER[0],
-                                    tcp_src=FAKE_SERVER[1])
-        actions = [ofp_parser.OFPActionSetField(ipv4_src=REAL_SERVER[0]),
-                   ofp_parser.OFPActionSetField(tcp_src=REAL_SERVER[1]),
-                   ofp_parser.OFPActionOutput(ofp.OFPP_NORMAL)]
-        add_flow(datapath, match, actions, priority=65535)
-
-def add_flow(datapath, match, actions, priority):
-    ofp = datapath.ofproto
-    ofp_parser = datapath.ofproto_parser
-    inst = [ofp_parser.OFPInstructionActions(ofp.OFPIT_APPLY_ACTIONS, actions)]
-    req = ofp_parser.OFPFlowMod(datapath=datapath,
-                                priority=priority,
-                                match=match,
-                                instructions=inst)
-    datapath.send_msg(req)
-
-def del_all_flows(datapath):
-    ofp = datapath.ofproto
-    ofp_parser = datapath.ofproto_parser
-    req = ofp_parser.OFPFlowMod(datapath=datapath,
-                                command=ofp.OFPFC_DELETE,
-                                out_port=ofp.OFPP_ANY,
-                                out_group=ofp.OFPG_ANY)
-    datapath.send_msg(req)
-MY_RYU_APP
-chmod +x /usr/local/bin/mitm.py
+__my_exit_trap__ () {
+    local LAST_STATUS=$? LAST_COMMAND="$BASH_COMMAND"
+    if [[ $LAST_STATUS != 0 ]]
+    then
+        printf '\nCommand `%s` has nonzero exit status.\n\n' "$LAST_COMMAND"
+    fi
+}
+trap __my_exit_trap__ EXIT
 
 ##############################################################################
 
-# print some information to the screen
+EXE=${BASH_SOURCE[0]}
+CTR=0
+while [[ -L $EXE ]]; do
+        (( ++CTR <= 100 )) || { echo Too many level of symlinks; exit 1; }
+        DIR=$( cd -P "$( dirname "$EXE" )" && pwd )
+        EXE=$( readlink "$EXE" )
+        [[ $EXE = /* ]] || EXE=$DIR/$EXE
+done
+__DIR__=$( cd -P "$( dirname "$EXE" )" && pwd )
+__NAME__=$( basename "$EXE" )
+__FILE__=$__DIR__/$__NAME__
 
-echo '
+mkdir -p "$__DIR__/tmp"
+mkdir -p "$__DIR__/out"
+cd "$__DIR__/tmp"
 
-If you want to restart the DHCP server:
+##############################################################################
 
-        service isc-dhcp-server restart
+### Make sure you have openssl in your PATH ###
 
-If you want to see a list of all current DHCP leases:
+type -a openssl
+openssl version
 
-        dhcp-lease-list --lease /var/lib/dhcp/dhcpd.leases
+##############################################################################
 
-If you want to run the evil man-in-the-middle controller:
+### Secret key and certificate for root certificate authority ###
 
-        mitm.py
+if [[ ! -f rootca.key ]]; then
+  openssl genrsa -out rootca.key 2048
+fi
 
-'
+if [[ ! -f rootca.crt ]]; then
+  openssl req -x509 -new -sha256 -days 1000 -subj /CN=rootca/ -key rootca.key -out rootca.crt -config <(cat<<<'
+    [ req ]
+    distinguished_name = req_distinguished_name
+    x509_extensions = extension
+
+    [ req_distinguished_name ]
+    commonName = rootca
+
+    [ extension ]
+    keyUsage = critical, keyCertSign, cRLSign
+    basicConstraints = critical, CA:TRUE
+  ')
+fi
+
+
+### Secret key and certificate for intermediate certificate authority ###
+
+if [[ ! -f intermediateca.key ]]; then
+  openssl genrsa -out intermediateca.key 2048
+fi
+
+if [[ ! -f intermediateca.crt ]]; then
+  openssl req -new -sha256 -subj /CN=intermediateca/ -key intermediateca.key -out intermediateca.csr
+  openssl x509 -req -days 1000 -CA rootca.crt -CAkey rootca.key -CAcreateserial -in intermediateca.csr -out intermediateca.crt -extensions extension -extfile <(cat<<<'
+    [ req ]
+    distinguished_name = req_distinguished_name
+    x509_extensions = extension
+
+    [ req_distinguished_name ]
+    commonName = intermediateca
+
+    [ extension ]
+    keyUsage = critical, keyCertSign, cRLSign
+    basicConstraints = critical, CA:TRUE, pathlen:0
+  ')
+  rm intermediateca.csr
+fi
+
+
+### Secret key and certificate for localhost ###
+
+if [[ ! -f localhost.key ]]; then
+  openssl genrsa -out localhost.key 2048
+fi
+
+openssl req -new -sha256 -subj /CN=localhost/ -key localhost.key -out localhost.csr
+openssl x509 -req -days 1000 -CA intermediateca.crt -CAkey intermediateca.key -extensions extension -CAcreateserial -in localhost.csr -out localhost.crt -extfile <(cat<<<'
+  [ extension ]
+  subjectAltName = DNS:localhost,DNS:example.com,DNS:*.example.com
+')
+rm localhost.csr
+
+
+### Certificate chain for localhost ###
+
+cat localhost.crt intermediateca.crt rootca.crt > localhost.crtchain
+
+cp localhost.key localhost.crtchain rootca.crt ../out
+CERTGEN
+chmod +x /cert/certgen
+
+/cert/certgen
+
+##############################################################################
+
+# set up an nginx Web server
+
+if ! dpkg -s nginx &> /dev/null; then
+  apt-get install -y nginx
+fi
+
+cat > /nginx.html <<'HTML'
+<!doctype html>
+<meta charset=utf-8>
+<title>MitM 攻擊示範</title>
+<meta name=viewport content="width=device-width,initial-scale=1">
+<style>
+*{color:white}
+body{background-color:#aa5555}
+h1{font-size:40px;margin-bottom:30px}
+p{font-size:20px}
+code{background-color:#333333}
+</style>
+<h1>您的網路連線正遭受威脅</h1>
+<div id=msg style=display:none>
+<p>您想要訪問 <code id=url></code> 網頁，但是這個網路連線已經被中間人攻擊者所竄改。</p>
+<hr>
+<p>任何「未加密」的連線都有被「中間人攻擊」的風險。</p>
+<p>潛藏網路中的攻擊者可以輕易地「竊聽」或「竄改」網路封包。若兩個節點之間的通訊沒有加密，他們就無法察覺攻擊者的存在。</p>
+<hr>
+<p>SDN 裡 Switch 與 Controller 之間的通訊如果沒有加密，更容易被攻擊者盯上。</p>
+<p>攻擊者只要偽裝自己是 Controller 對 Switch 下達指令，就能輕易地掌控「整個網路」，對該網路中所有的裝置進行更進一步的攻擊。</p>
+<p>所以 SDN 設備啟用 TLS 加密是必須的。</p>
+<hr>
+<p>儘管如此，仍然有許多 SDN 設備，以降低成本、提升效能為藉口，不支援、或者預設情況不啟用 TLS 防護。</p>
+</div>
+<script>
+var msg = document.getElementById('msg');
+var url = document.getElementById('url');
+url.innerText = location.href;
+msg.style.display = '';
+</script>
+HTML
+
+cat > /etc/nginx/sites-enabled/default <<'NGINX_CONF'
+server {
+  listen *:80 default_server;
+  root /;
+  error_page 404 /nginx.html;
+  location = / {
+    try_files /nginx.html =404;
+  }
+  location = /nginx.html {
+    internal;
+  }
+  location / {
+    return 404;
+  }
+}
+server {
+  listen *:443 default_server;
+  root /;
+  error_page 404 /nginx.html;
+  location = / {
+    try_files /nginx.html =404;
+  }
+  location = /nginx.html {
+    internal;
+  }
+  location / {
+    return 404;
+  }
+  ssl on;
+  ssl_certificate /cert/out/localhost.crtchain;
+  ssl_certificate_key /cert/out/localhost.key;
+}
+NGINX_CONF
+
+service nginx restart
+
+##############################################################################
+
+# /cert/certgen
+# service nginx restart
+# service isc-dhcp-server restart
+# dhcp-lease-list --lease /var/lib/dhcp/dhcpd.leases
