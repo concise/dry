@@ -25,7 +25,7 @@ class MyWebServer(http.server.BaseHTTPRequestHandler):
             self.rfile.read(int(self.headers['Content-Length'])).decode()
         )
 
-        stdout, stderr, retcode = SYSTEM(['/usr/local/bin/attack'] + body, ciphertext)
+        stdout, stderr, retcode = SYSTEM(['/usr/local/bin/attack'] + body)
 
         self.send_response(200)
         self.end_headers()
