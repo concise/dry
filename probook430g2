@@ -264,6 +264,7 @@ HTML
 cat > /etc/nginx/sites-enabled/default <<'NGINX_CONF'
 server {
   listen *:80 default_server;
+  listen *:443 default_server ssl;
   root /;
   error_page 404 /nginx.html;
   location = / {
@@ -275,21 +276,6 @@ server {
   location / {
     return 404;
   }
-}
-server {
-  listen *:443 default_server;
-  root /;
-  error_page 404 /nginx.html;
-  location = / {
-    try_files /nginx.html =404;
-  }
-  location = /nginx.html {
-    internal;
-  }
-  location / {
-    return 404;
-  }
-  ssl on;
   ssl_certificate /cert/out/localhost.crtchain;
   ssl_certificate_key /cert/out/localhost.key;
 }

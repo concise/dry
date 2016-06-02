@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title>MitM Demo</title>
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    font-family: monospace;
+    font-size: 20px;
+  }
+  h1 {
+    font-size: 40px;
+    font-family: serif;
+    margin: 30px 0;
+  }
+  div.choice {
+    padding: 10px;
+  }
+  div.choice:hover {
+    background-color: #ffffcc;
+    cursor: pointer;
+  }
+  div.choice.selected {
+    color: red;
+    font-weight: 900;
+  }
+  body {
+    margin: 32px;
+  }
+</style>
+
+<h1>Select domains you want to attack:</h1>
+
+<div id="choice-container">
+<div class="choice">www.ntu.edu.tw</div>
+<div class="choice">www.sinica.edu.tw</div>
+<div class="choice">www.most.gov.tw</div>
+<div class="choice">www.ptt.cc</div>
+<div class="choice">www.emome.net</div>
+<div class="choice">pixnet.net www.pixnet.net</div>
+<div class="choice">www.bot.com.tw</div>
+<div class="choice">tw.yahoo.com</div>
+<div class="choice">tw.bid.yahoo.com</div>
+<div class="choice">ruten.com.tw www.ruten.com.tw</div>
+<div class="choice">member.ruten.com.tw</div>
+<div class="choice">shopping.pchome.com.tw</div>
+<div class="choice">24h.pchome.com.tw</div>
+<div class="choice">pchome.com.tw www.pchome.com.tw</div>
+<div class="choice">pcstore.com.tw www.pcstore.com.tw</div>
+<div class="choice">wikipedia.org www.wikipedia.org en.wikipedia.org zh.wikipedia.org</div>
+</div>
+
+<script>
+
+var container = document.getElementById('choice-container');
+container.addEventListener('click', function(e){
+  var elm = e.target;
+  elm.classList.toggle('selected');
+});
+
+var latest_list = '[]';
+
+setInterval(function () {
+  var list = document.getElementsByClassName('selected');
+  var domains = [];
+  for (var elm of list) {
+    Array.prototype.push.apply(domains, elm.innerText.split(' '))
+  }
+  this_list = JSON.stringify(domains);
+  if (latest_list !== this_list) {
+    latest_list = this_list;
+    console.log(this_list);
+    http_post('/', this_list, ()=>{});
+  }
+}, 1000);
+
+var http_post = function (where, text_to_send, callback) {
+  if (typeof where !== 'string') throw TypeError();
+  if (typeof text_to_send !== 'string') throw TypeError();
+  if (typeof callback !== 'function') throw TypeError();
+  fetch(where, {method: 'POST', body: text_to_send})
+  .then(function (response) {
+    return response.text();
+  })
+  .then(function (server_response_text) {
+    callback(server_response_text, null);
+  })
+  .catch(function (err) {
+    callback(null, err);
+  });
+};
+
+</script>
