@@ -2,4 +2,7 @@
 
 printf '%s\n%s\n%s\n' '#!/bin/sh -e' '> /dev/uhid' 'chmod 0666 /dev/uhid' > /etc/rc.local
 printf '%s\n' 'KERNEL=="hidraw*", SUBSYSTEM=="hidraw", MODE="0666"' > /etc/udev/rules.d/99-expose-all-hidraw.rules
-> /dev/uhid; chmod 0666 /dev/uhid; udevadm trigger
+
+udevadm trigger
+> /dev/uhid
+chmod 0666 /dev/uhid
