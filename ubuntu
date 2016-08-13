@@ -1,25 +1,6 @@
 #!/bin/bash
 
-test "${BASH_SOURCE[0]}" = "$0" || {
-    echo "Error: '${BASH_SOURCE[0]}' should not be sourced"
-    return 1
-}
-
-set -o pipefail         # proper status code for a pipeline
-set -o errexit          # -e exit when seeing a nonzero status code
-set -o nounset          # -u using unbound variable is an error
-shopt -s failglob       # pathname expansion failing is an error
-
-__my_exit_trap__ () {
-    local LAST_STATUS=$? LAST_COMMAND="$BASH_COMMAND"
-    if [[ $LAST_STATUS != 0 ]]
-    then
-        printf '\nCommand `%s` has nonzero exit status.\n\n' "$LAST_COMMAND"
-    fi
-}
-trap __my_exit_trap__ EXIT
-
-##############################################################################
+set -e
 
 test -n "$BASH_VERSION"
 grep -q 'Ubuntu 16.04' /etc/issue
@@ -34,15 +15,15 @@ timedatectl set-timezone Asia/Taipei
 
 mv /etc/apt/sources.list /etc/apt/sources.list.bak."$(date +%Y%m%d.%H%M%S)"
 
-#MIRROR=http://archive.ubuntu.com/ubuntu/
-#MIRROR=http://mirrors.digitalocean.com/ubuntu/
-#MIRROR=http://mirrors.linode.com/ubuntu/
-#MIRROR=http://security.ubuntu.com/ubuntu/
-#MIRROR=http://tw.archive.ubuntu.com/ubuntu/
-#MIRROR=http://us.archive.ubuntu.com/ubuntu/
+# MIRROR=http://archive.ubuntu.com/ubuntu/
+# MIRROR=http://mirrors.digitalocean.com/ubuntu/
+# MIRROR=http://mirrors.linode.com/ubuntu/
+# MIRROR=http://security.ubuntu.com/ubuntu/
+# MIRROR=http://tw.archive.ubuntu.com/ubuntu/
+# MIRROR=http://us.archive.ubuntu.com/ubuntu/
 MIRROR=http://free.nchc.org.tw/ubuntu/
 
-grep -q 'Ubuntu 16.04' /etc/issue && echo "
+echo "
 deb $MIRROR xenial           main restricted universe multiverse
 deb $MIRROR xenial-updates   main restricted universe multiverse
 deb $MIRROR xenial-backports main restricted universe multiverse
@@ -79,13 +60,6 @@ service ssh restart
 
 ##############################################################################
 
-#if dpkg -l ubuntu-desktop &> /dev/null
-#then
-#    cp /etc/default/keyboard /etc/default/keyboard.bak."$(date +%Y%m%d.%H%M%S)"
-#    sed -i 's@^XKBOPTIONS=.*$@XKBOPTIONS="ctrl:nocaps"@' /etc/default/keyboard
-#    dpkg-reconfigure --priority=high keyboard-configuration
-#fi
-
-cp /etc/default/keyboard /etc/default/keyboard.bak."$(date +%Y%m%d.%H%M%S)"
-sed -i 's@^XKBOPTIONS=.*$@XKBOPTIONS="ctrl:nocaps"@' /etc/default/keyboard
-dpkg-reconfigure --priority=high keyboard-configuration
+# cp /etc/default/keyboard /etc/default/keyboard.bak."$(date +%Y%m%d.%H%M%S)"
+# sed -i 's@^XKBOPTIONS=.*$@XKBOPTIONS="ctrl:nocaps"@' /etc/default/keyboard
+# dpkg-reconfigure --priority=high keyboard-configuration
