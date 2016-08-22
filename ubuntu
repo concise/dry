@@ -60,6 +60,6 @@ service ssh restart
 
 ##############################################################################
 
-# cp /etc/default/keyboard /etc/default/keyboard.bak."$(date +%Y%m%d.%H%M%S)"
-# sed -i 's@^XKBOPTIONS=.*$@XKBOPTIONS="ctrl:nocaps"@' /etc/default/keyboard
-# dpkg-reconfigure --priority=high keyboard-configuration
+cp /etc/default/keyboard /etc/default/keyboard.bak."$(date +%Y%m%d.%H%M%S)"
+sed -i 's@^XKBOPTIONS=.*$@XKBOPTIONS="ctrl:nocaps"@' /etc/default/keyboard
+dpkg-reconfigure --priority=high keyboard-configuration
