@@ -60,6 +60,11 @@ service ssh restart
 
 ##############################################################################
 
+cp /etc/systemd/logind.conf /etc/systemd/logind.conf.bak."$(date +%Y%m%d.%H%M%S)"
+sed -i 's@^#HandleLidSwitch=.*$@HandleLidSwitch=ignore@' /etc/systemd/logind.conf
+
+##############################################################################
+
 cp /etc/default/keyboard /etc/default/keyboard.bak."$(date +%Y%m%d.%H%M%S)"
 sed -i 's@^XKBOPTIONS=.*$@XKBOPTIONS="ctrl:nocaps"@' /etc/default/keyboard
 dpkg-reconfigure --priority=high keyboard-configuration
