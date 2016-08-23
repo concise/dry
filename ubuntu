@@ -2,6 +2,8 @@
 
 set -e
 
+BACKUPSUFFIX=$(date +.bak.%Y%m%d.%H%M%S)
+
 test -n "$BASH_VERSION"
 grep -q 'Ubuntu 16.04' /etc/issue
 test "$(id -u)" = 0
@@ -13,7 +15,11 @@ timedatectl set-timezone Asia/Taipei
 
 ##############################################################################
 
-mv /etc/apt/sources.list /etc/apt/sources.list.bak."$(date +%Y%m%d.%H%M%S)"
+systemctl set-default multi-user.target
+
+##############################################################################
+
+cp /etc/apt/sources.list{,"$BACKUPSUFFIX"}
 
 # MIRROR=http://archive.ubuntu.com/ubuntu/
 # MIRROR=http://mirrors.digitalocean.com/ubuntu/
@@ -43,14 +49,14 @@ apt install -y build-essential exuberant-ctags gdb git gnupg2 htop mosh openssh-
 
 ##############################################################################
 
-mv /etc/vim/vimrc /etc/vim/vimrc.bak."$(date +%Y%m%d.%H%M%S)"
+cp /etc/vim/vimrc{,"$BACKUPSUFFIX"}
 echo > /etc/vim/vimrc 'se nocp uc=0 vi= nolpl rtp=$VIMRUNTIME mls=0 hid bs=2 ai ci pi et sts=4 sw=4 kp=:help fo=qn tw=79 sc shm+=I lcs=tab:>-,trail:.|sy off|filet off'
+echo > /etc/profile.d/default_selected_editor.sh 'export SELECTED_EDITOR=/usr/bin/vim.basic'
 update-alternatives --set editor /usr/bin/vim.basic
-echo > /etc/profile.d/my_selected_editor.sh 'export SELECTED_EDITOR=/usr/bin/vim.basic'
 
 ##############################################################################
 
-cp /etc/ssh/sshd_config /etc/ssh/sshd_config.bak."$(date +%Y%m%d.%H%M%S)"
+cp /etc/ssh/sshd_config{,"$BACKUPSUFFIX"}
 sed -i 's@^PermitRootLogin.*$@PermitRootLogin yes@' /etc/ssh/sshd_config
 if ! grep -q 'UseDNS' /etc/ssh/sshd_config
 then
@@ -60,16 +66,11 @@ service ssh restart
 
 ##############################################################################
 
-cp /etc/systemd/logind.conf /etc/systemd/logind.conf.bak."$(date +%Y%m%d.%H%M%S)"
-sed -i 's@^#HandleLidSwitch=.*$@HandleLidSwitch=ignore@' /etc/systemd/logind.conf
+cp /etc/systemd/logind.conf{,"$BACKUPSUFFIX"}
+sed -i 's@^#\(HandleLidSwitch\)=.*@\1=ignore@' /etc/systemd/logind.conf
 
 ##############################################################################
 
-cp /etc/default/keyboard /etc/default/keyboard.bak."$(date +%Y%m%d.%H%M%S)"
+cp /etc/default/keyboard{,"$BACKUPSUFFIX"}
 sed -i 's@^XKBOPTIONS=.*$@XKBOPTIONS="ctrl:nocaps"@' /etc/default/keyboard
 dpkg-reconfigure --priority=high keyboard-configuration
-
-##############################################################################
-
-#systemctl set-default graphical.target
-systemctl set-default multi-user.target
