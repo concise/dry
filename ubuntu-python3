@@ -16,4 +16,4 @@ cd /tmp/Python-3.5.2
 ./configure
 make -j 8
 make install
-pip3 install --upgrade pip setuptools
+# python3 -m pip install --upgrade pip setuptools
