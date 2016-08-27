@@ -1,19 +1,22 @@
 #!/bin/bash
 #
 # sudo su -
-# wget -P /tmp https://github.com/concise/dry/raw/master/ubuntu-python3
-# bash /tmp/ubuntu-python3
+# wget https://github.com/concise/dry/raw/master/ubuntu-python3
+# bash ubuntu-python3
+#
+# python3 -m pip install --upgrade pip setuptools
 #
 
 set -e
 
+TMPDIR=$(mktemp -d)
+cd "$TMPDIR"
+
 apt-get install -y make libreadline-dev libssl-dev
-wget -P /tmp https://www.python.org/ftp/python/3.5.2/Python-3.5.2.tar.xz
-openssl md5 /tmp/Python-3.5.2.tar.xz | grep 8906efbacfcdc7c3c9198aeefafd159e
-rm -rf /tmp/Python-3.5.2
-tar xJf /tmp/Python-3.5.2.tar.xz -C /tmp
-cd /tmp/Python-3.5.2
+wget https://www.python.org/ftp/python/3.5.2/Python-3.5.2.tar.xz
+openssl md5 Python-3.5.2.tar.xz | grep 8906efbacfcdc7c3c9198aeefafd159e
+tar xf Python-3.5.2.tar.xz
+cd Python-3.5.2
 ./configure
 make -j 8
 make install
-# python3 -m pip install --upgrade pip setuptools
