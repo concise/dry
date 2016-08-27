@@ -15,10 +15,6 @@ timedatectl set-timezone Asia/Taipei
 
 ##############################################################################
 
-systemctl set-default multi-user.target
-
-##############################################################################
-
 cp /etc/apt/sources.list{,"$BACKUPSUFFIX"}
 
 # MIRROR=http://archive.ubuntu.com/ubuntu/
@@ -66,11 +62,15 @@ service ssh restart
 
 ##############################################################################
 
+cp /etc/default/keyboard{,"$BACKUPSUFFIX"}
+sed -i 's@^XKBOPTIONS=.*$@XKBOPTIONS="ctrl:nocaps"@' /etc/default/keyboard
+dpkg-reconfigure --priority=high keyboard-configuration
+
+##############################################################################
+
 cp /etc/systemd/logind.conf{,"$BACKUPSUFFIX"}
 sed -i 's@^#\(HandleLidSwitch\)=.*@\1=ignore@' /etc/systemd/logind.conf
 
 ##############################################################################
 
-cp /etc/default/keyboard{,"$BACKUPSUFFIX"}
-sed -i 's@^XKBOPTIONS=.*$@XKBOPTIONS="ctrl:nocaps"@' /etc/default/keyboard
-dpkg-reconfigure --priority=high keyboard-configuration
+systemctl set-default multi-user.target
