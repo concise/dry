@@ -54,8 +54,12 @@ apt install -y build-essential exuberant-ctags gdb git gnupg2 htop mosh openssh-
 
 cp /etc/vim/vimrc{,"$BACKUPSUFFIX"}
 echo > /etc/vim/vimrc 'se nocp uc=0 vi= nolpl rtp=$VIMRUNTIME mls=0 hid bs=2 ai ci pi et sts=4 sw=4 kp=:help fo=qn tw=79 sc shm+=I lcs=tab:>-,trail:.|sy off|filet off'
-echo > /etc/profile.d/default_selected_editor.sh 'export SELECTED_EDITOR=/usr/bin/vim.basic'
 update-alternatives --set editor /usr/bin/vim.basic
+printf "\
+export VISUAL=/usr/bin/vim.basic
+export EDITOR=/usr/bin/vim.basic
+export SELECTED_EDITOR=/usr/bin/vim.basic
+" > /etc/profile.d/just_let_me_use_vim_please.sh
 
 ##############################################################################
 
