@@ -18,12 +18,12 @@ dpkg-reconfigure --frontend=noninteractive tzdata
 
 cp /etc/apt/sources.list{,"$BACKUPSUFFIX"}
 
-#MIRROR=http://archive.ubuntu.com/ubuntu/
-#MIRROR=http://mirrors.digitalocean.com/ubuntu/
-#MIRROR=http://mirrors.linode.com/ubuntu/
-#MIRROR=http://security.ubuntu.com/ubuntu/
-#MIRROR=http://tw.archive.ubuntu.com/ubuntu/
-#MIRROR=http://us.archive.ubuntu.com/ubuntu/
+# MIRROR=http://archive.ubuntu.com/ubuntu/
+# MIRROR=http://mirrors.digitalocean.com/ubuntu/
+# MIRROR=http://mirrors.linode.com/ubuntu/
+# MIRROR=http://security.ubuntu.com/ubuntu/
+# MIRROR=http://tw.archive.ubuntu.com/ubuntu/
+# MIRROR=http://us.archive.ubuntu.com/ubuntu/
 MIRROR=http://free.nchc.org.tw/ubuntu/
 
 echo "
@@ -31,10 +31,6 @@ deb $MIRROR trusty           main restricted universe multiverse
 deb $MIRROR trusty-updates   main restricted universe multiverse
 deb $MIRROR trusty-backports main restricted universe multiverse
 deb $MIRROR trusty-security  main restricted universe multiverse
-# deb-src $MIRROR trusty           main restricted universe multiverse
-# deb-src $MIRROR trusty-updates   main restricted universe multiverse
-# deb-src $MIRROR trusty-backports main restricted universe multiverse
-# deb-src $MIRROR trusty-security  main restricted universe multiverse
 " > /etc/apt/sources.list
 
 ##############################################################################
@@ -57,14 +53,14 @@ apt-get install -y build-essential exuberant-ctags gdb git gnupg2 htop mosh open
 
 ##############################################################################
 
-mv /etc/vim/vimrc /etc/vim/vimrc.bak."$(date +%Y%m%d.%H%M%S)"
+cp /etc/vim/vimrc{,"$BACKUPSUFFIX"}
 echo > /etc/vim/vimrc 'se nocp uc=0 vi= nolpl rtp=$VIMRUNTIME mls=0 hid bs=2 ai ci pi et sts=4 sw=4 kp=:help fo=qn tw=79 sc shm+=I lcs=tab:>-,trail:.|sy off|filet off'
+echo > /etc/profile.d/default_selected_editor.sh 'export SELECTED_EDITOR=/usr/bin/vim.basic'
 update-alternatives --set editor /usr/bin/vim.basic
-echo > /etc/profile.d/my_selected_editor.sh 'export SELECTED_EDITOR=/usr/bin/vim.basic'
 
 ##############################################################################
 
-cp /etc/ssh/sshd_config /etc/ssh/sshd_config.bak."$(date +%Y%m%d.%H%M%S)"
+cp /etc/ssh/sshd_config{,"$BACKUPSUFFIX"}
 sed -i 's@^PermitRootLogin.*$@PermitRootLogin yes@' /etc/ssh/sshd_config
 if ! grep -q 'UseDNS' /etc/ssh/sshd_config
 then
@@ -74,6 +70,6 @@ service ssh restart
 
 ##############################################################################
 
-cp /etc/default/keyboard /etc/default/keyboard.bak."$(date +%Y%m%d.%H%M%S)"
+cp /etc/default/keyboard{,"$BACKUPSUFFIX"}
 sed -i 's@^XKBOPTIONS=.*$@XKBOPTIONS="ctrl:nocaps"@' /etc/default/keyboard
 dpkg-reconfigure --priority=high keyboard-configuration
