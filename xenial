@@ -2,12 +2,13 @@
 
 set -e
 
-BACKUPSUFFIX=$(date +.bak.%Y%m%d.%H%M%S)
-
 test -n "$BASH_VERSION"
 grep -q 'Ubuntu 16.04' /etc/issue
+test "$(uname -m)" = x86_64
 test "$(id -u)" = 0
 wget -q -O /dev/null https://duckduckgo.com/
+
+BACKUPSUFFIX=$(date +.bak.%Y%m%d.%H%M%S)
 
 ##############################################################################
 
