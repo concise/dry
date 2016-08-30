@@ -78,3 +78,11 @@ service ssh restart
 cp /etc/default/keyboard{,"$BACKUPSUFFIX"}
 sed -i 's@^XKBOPTIONS=.*$@XKBOPTIONS="ctrl:nocaps"@' /etc/default/keyboard
 dpkg-reconfigure --priority=high keyboard-configuration
+
+##############################################################################
+
+if grep -q '^#includedir /etc/sudoers.d$' /etc/sudoers; then
+    echo 'Let any user in "sudo" group do anything without a password prompt'
+    echo '%sudo ALL=(ALL:ALL) NOPASSWD: ALL' > /etc/sudoers.d/easysudo
+    chmod 0440 /etc/sudoers.d/*
+fi

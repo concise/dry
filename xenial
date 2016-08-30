@@ -86,3 +86,11 @@ sed -i 's@^#\(HandleLidSwitch\)=.*@\1=ignore@' /etc/systemd/logind.conf
 ##############################################################################
 
 systemctl set-default multi-user.target
+
+##############################################################################
+
+if grep -q '^#includedir /etc/sudoers.d$' /etc/sudoers; then
+    echo 'Let any user in "sudo" group do anything without a password prompt'
+    echo '%sudo ALL=(ALL:ALL) NOPASSWD: ALL' > /etc/sudoers.d/easysudo
+    chmod 0440 /etc/sudoers.d/*
+fi
