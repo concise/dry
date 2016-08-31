@@ -1,4 +1,8 @@
 #!/bin/bash
+#
+# This is my personalization script for a newly installed
+# Ubuntu 16.04 Xenial Xerus LTS (supported until 2021)
+#
 
 set -e
 
@@ -8,7 +12,9 @@ test "$(uname -m)" = x86_64
 test "$(id -u)" = 0
 wget -q -O /dev/null https://duckduckgo.com/
 
-BACKUPSUFFIX=$(date +.bak.%Y%m%d.%H%M%S)
+TIMESTAMP=$(date +%Y%m%d%H%M%S)
+RANDOMSTR=$(dd if=/dev/urandom count=1 bs=2 2> /dev/null | xxd -p)
+BACKUPSUFFIX=.$TIMESTAMP.$RANDOMSTR.bak
 
 ##############################################################################
 
@@ -16,27 +22,8 @@ timedatectl set-timezone Asia/Taipei
 
 ##############################################################################
 
-cp /etc/apt/sources.list{,"$BACKUPSUFFIX"}
-
-# MIRROR=http://archive.ubuntu.com/ubuntu/
-# MIRROR=http://mirrors.digitalocean.com/ubuntu/
-# MIRROR=http://mirrors.linode.com/ubuntu/
-# MIRROR=http://security.ubuntu.com/ubuntu/
-# MIRROR=http://tw.archive.ubuntu.com/ubuntu/
-# MIRROR=http://us.archive.ubuntu.com/ubuntu/
-MIRROR=http://free.nchc.org.tw/ubuntu/
-
-echo "
-deb $MIRROR xenial           main restricted universe multiverse
-deb $MIRROR xenial-updates   main restricted universe multiverse
-deb $MIRROR xenial-backports main restricted universe multiverse
-deb $MIRROR xenial-security  main restricted universe multiverse
-" > /etc/apt/sources.list
-
-##############################################################################
-
-cp /etc/apt/apt.conf.d/{10periodic,.10periodic"$BACKUPSUFFIX"}
-echo '
+mv /etc/apt/apt.conf.d/{10periodic,.10periodic"$BACKUPSUFFIX"}
+printf '%s\n' '
 APT::Periodic::Enable "0";
 APT::Periodic::Unattended-Upgrade "0";
 APT::Periodic::Update-Package-Lists "0";
@@ -46,30 +33,66 @@ APT::Periodic::AutocleanInterval "0";
 
 ##############################################################################
 
+mv /etc/apt/sources.list{,"$BACKUPSUFFIX"}
+
+# MIRROR=http://archive.ubuntu.com/ubuntu/
+# MIRROR=http://mirrors.digitalocean.com/ubuntu/
+# MIRROR=http://mirrors.linode.com/ubuntu/
+# MIRROR=http://security.ubuntu.com/ubuntu/
+# MIRROR=http://tw.archive.ubuntu.com/ubuntu/
+# MIRROR=http://us.archive.ubuntu.com/ubuntu/
+MIRROR=http://free.nchc.org.tw/ubuntu/
+
+printf '%s\n' "
+deb $MIRROR xenial           main restricted universe multiverse
+deb $MIRROR xenial-updates   main restricted universe multiverse
+deb $MIRROR xenial-backports main restricted universe multiverse
+deb $MIRROR xenial-security  main restricted universe multiverse
+" > /etc/apt/sources.list
+
 apt update
+
+##############################################################################
+
 apt full-upgrade -y
 apt autoremove -y
 apt install -y build-essential exuberant-ctags gdb git gnupg2 htop mosh openssh-server screen tig tmux valgrind vim
 
 ##############################################################################
 
-cp /etc/vim/vimrc{,"$BACKUPSUFFIX"}
-echo > /etc/vim/vimrc 'se nocp uc=0 vi= nolpl rtp=$VIMRUNTIME mls=0 hid bs=2 ai ci pi et sts=4 sw=4 kp=:help fo=qn tw=79 sc shm+=I lcs=tab:>-,trail:.|sy off|filet off'
+mv /etc/vim/vimrc{,"$BACKUPSUFFIX"}
+printf '%s\n' 'se nocp uc=0 vi= nolpl rtp=$VIMRUNTIME mls=0 hid bs=2 ai ci pi et sts=4 sw=4 kp=:help fo=qn tw=79 sc shm+=I lcs=tab:>-,trail:.|sy off|filet off' > /etc/vim/vimrc
 update-alternatives --set editor /usr/bin/vim.basic
-printf "\
+printf '%s\n' '
 export VISUAL=/usr/bin/vim.basic
 export EDITOR=/usr/bin/vim.basic
 export SELECTED_EDITOR=/usr/bin/vim.basic
-" > /etc/profile.d/just_let_me_use_vim_please.sh
+' > /etc/profile.d/just_let_me_use_vim_please.sh
 
 ##############################################################################
 
-cp /etc/ssh/sshd_config{,"$BACKUPSUFFIX"}
-sed -i 's@^PermitRootLogin.*$@PermitRootLogin yes@' /etc/ssh/sshd_config
-if ! grep -q 'UseDNS' /etc/ssh/sshd_config
-then
-    echo 'UseDNS no' >> /etc/ssh/sshd_config
+if grep -q '^#includedir /etc/sudoers.d$' /etc/sudoers; then
+    printf '%s\n' '%sudo ALL=(ALL:ALL) NOPASSWD: ALL' > /etc/sudoers.d/easysudo
+    chmod 0440 /etc/sudoers.d/*
 fi
+
+##############################################################################
+
+mv /etc/ssh/sshd_config{,"$BACKUPSUFFIX"}
+
+printf '%s\n' '
+UsePrivilegeSeparation yes
+ChallengeResponseAuthentication no
+X11Forwarding yes
+PrintMotd no
+AcceptEnv LANG LC_*
+Subsystem sftp /usr/lib/openssh/sftp-server
+UsePAM yes
+
+PermitRootLogin yes
+UseDNS no
+' > /etc/ssh/sshd_config
+
 service ssh restart
 
 ##############################################################################
@@ -85,12 +108,34 @@ sed -i 's@^#\(HandleLidSwitch\)=.*@\1=ignore@' /etc/systemd/logind.conf
 
 ##############################################################################
 
-systemctl set-default multi-user.target
+if dpkg -l ubuntu-desktop &> /dev/null; then
+    cp /etc/default/grub{,"$BACKUPSUFFIX"}
+    sed -i 's@^\(GRUB_HIDDEN_TIMEOUT=0\)$@#\1@' /etc/default/grub
+    sed -i 's@^\(GRUB_TIMEOUT\)=10$@\1=2@' /etc/default/grub
+    sed -i 's@^\(GRUB_CMDLINE_LINUX_DEFAULT\)="quiet splash"$@\1=""@' /etc/default/grub
+    update-grub
+
+    systemctl set-default multi-user.target
+fi
 
 ##############################################################################
 
-if grep -q '^#includedir /etc/sudoers.d$' /etc/sudoers; then
-    echo 'Let any user in "sudo" group do anything without a password prompt'
-    echo '%sudo ALL=(ALL:ALL) NOPASSWD: ALL' > /etc/sudoers.d/easysudo
-    chmod 0440 /etc/sudoers.d/*
-fi
+THIS_SSH_INFO=/var/tmp/this_ssh_host_public_key_info.$TIMESTAMP.$RANDOMSTR
+
+for t in rsa ecdsa ed25519; do
+    ssh-keyscan -t $t -p 22 127.0.0.1
+done 2> /dev/null | cut -d ' ' -f 2,3 > "$THIS_SSH_INFO"
+
+echo '
+The bash command
+
+  for t in rsa ecdsa ed25519; do
+    ssh-keyscan -t $t -p 22 127.0.0.1
+  done 2> /dev/null | cut -d " " -f 2,3
+
+produces
+'
+cat "$THIS_SSH_INFO"
+echo
+md5sum "$THIS_SSH_INFO"
+echo
