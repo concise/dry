@@ -71,13 +71,6 @@ export SELECTED_EDITOR=/usr/bin/vim.basic
 
 ##############################################################################
 
-if grep -q '^#includedir /etc/sudoers.d$' /etc/sudoers; then
-    printf '%s\n' '%sudo ALL=(ALL:ALL) NOPASSWD: ALL' > /etc/sudoers.d/easysudo
-    chmod 0440 /etc/sudoers.d/*
-fi
-
-##############################################################################
-
 mv /etc/ssh/sshd_config{,"$BACKUPSUFFIX"}
 
 printf '%s\n' '
@@ -94,7 +87,21 @@ PermitRootLogin no
 PasswordAuthentication no
 ' > /etc/ssh/sshd_config
 
+if [[ $1 == --insecure ]]; then
+    sed -i 's@PermitRootLogin no@PermitRootLogin yes@' /etc/ssh/sshd_config
+    sed -i 's@PasswordAuthentication no@PasswordAuthentication yes@' /etc/ssh/sshd_config
+fi
+
 service ssh restart
+
+##############################################################################
+
+if [[ $1 == --insecure ]]; then
+    if grep -q '^#includedir /etc/sudoers.d$' /etc/sudoers; then
+        printf '%s\n' '%sudo ALL=(ALL:ALL) NOPASSWD: ALL' > /etc/sudoers.d/easysudo
+        chmod 0440 /etc/sudoers.d/easysudo
+    fi
+fi
 
 ##############################################################################
 
@@ -146,13 +153,7 @@ echo
 
 echo 'The above host key info is stored in /_this_ssh_host_public_key_info_'
 
-echo '
-**CAVEATS**
-Note that password login and root login are both disabled now.
-If you need any one of those, for instance when you are setting
-up a private VirtualBox VM, just modify /etc/ssh/sshd_config and
-restart the ssh service.
-'
+##############################################################################
 
 echo '
 **CAVEATS**
