@@ -116,6 +116,10 @@ if dpkg -l ubuntu-desktop &> /dev/null; then
     sed -i 's@^\(GRUB_CMDLINE_LINUX_DEFAULT\)="quiet splash"$@\1=""@' /etc/default/grub
     update-grub
 
+    systemctl disable avahi-daemon.service
+    systemctl disable cups.service
+    systemctl disable cups-browsed.service
+
     systemctl set-default multi-user.target
 fi
 
@@ -143,7 +147,18 @@ echo
 echo 'The above host key info is stored in /_this_ssh_host_public_key_info_'
 
 echo '
+**CAVEATS**
 Note that password login and root login are both disabled now.
-If you need any one of those, just modify /etc/ssh/sshd_config
-and restart the ssh service.
+If you need any one of those, for instance when you are setting
+up a private VirtualBox VM, just modify /etc/ssh/sshd_config and
+restart the ssh service.
+'
+
+echo '
+**CAVEATS**
+If this Ubuntu system is running on a laptop, the system is now
+configured to not suspend when you close your lid.  If you want
+auto-suspend behavior, just modify /etc/systemd/logind.conf and
+comment out the line "HandleLidSwitch=ignore".  After rebooting,
+your laptop shall automatically suspend when you close the lid.
 '
