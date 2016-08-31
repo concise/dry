@@ -63,12 +63,12 @@ apt install -y build-essential exuberant-ctags gdb git gnupg2 htop mosh openssh-
 mv /etc/vim/vimrc{,"$BACKUPSUFFIX"}
 
 printf '%s\n' '
-#
-# The system vimrc shipped by Ubuntu is far from ideal as a "default".
-# Here is an alternative I propose to fix that.
-#
-#                                               2016    Jong-Shian Wu
-#
+"
+" The system vimrc shipped by Ubuntu is far from ideal as a "default".
+" Here is an alternative I propose to fix that.
+"
+"                                               2016    Jong-Shian Wu
+"
 
 set runtimepath=~/.vim,/usr/share/vim/vim74,~/.vim/after
 set nocompatible
