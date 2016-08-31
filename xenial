@@ -89,8 +89,9 @@ AcceptEnv LANG LC_*
 Subsystem sftp /usr/lib/openssh/sftp-server
 UsePAM yes
 
-PermitRootLogin yes
 UseDNS no
+PermitRootLogin no
+PasswordAuthentication no
 ' > /etc/ssh/sshd_config
 
 service ssh restart
@@ -120,11 +121,9 @@ fi
 
 ##############################################################################
 
-THIS_SSH_INFO=/var/tmp/this_ssh_host_public_key_info.$TIMESTAMP.$RANDOMSTR
-
 for t in rsa ecdsa ed25519; do
     ssh-keyscan -t $t -p 22 127.0.0.1
-done 2> /dev/null | cut -d ' ' -f 2,3 > "$THIS_SSH_INFO"
+done 2> /dev/null | cut -d ' ' -f 2,3 > /_this_ssh_host_public_key_info_
 
 echo '
 The bash command
@@ -135,7 +134,16 @@ The bash command
 
 produces
 '
-cat "$THIS_SSH_INFO"
+cat /_this_ssh_host_public_key_info_
+
 echo
-md5sum "$THIS_SSH_INFO"
+echo 'whose MD5 is '"$({ openssl dgst -md5 -binary | xxd -p; } < /_this_ssh_host_public_key_info_)"
 echo
+
+echo 'The above host key info is stored in /_this_ssh_host_public_key_info_'
+
+echo '
+Note that password login and root login are both disabled now.
+If you need any one of those, just modify /etc/ssh/sshd_config
+and restart the ssh service.
+'
