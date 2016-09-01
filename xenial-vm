@@ -1,8 +1,4 @@
 #!/bin/bash
-#
-# This is my personalization script for a newly installed
-# Ubuntu 16.04 Xenial Xerus LTS (supported until 2021)
-#
 
 set -e
 
