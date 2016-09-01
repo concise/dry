@@ -1,0 +1,224 @@
+#!/bin/bash
+#
+# This is my personalization script for a newly installed
+# Ubuntu 16.04 Xenial Xerus LTS (supported until 2021)
+#
+
+set -e
+
+test -n "$BASH_VERSION"
+grep -q 'Ubuntu 16.04' /etc/issue
+test "$(uname -m)" = x86_64
+test "$(id -u)" = 0
+wget -q -O /dev/null https://duckduckgo.com/
+
+TIMESTAMP=$(date +%Y%m%d%H%M%S)
+RANDOMSTR=$(dd if=/dev/urandom count=1 bs=2 2> /dev/null | xxd -p)
+BACKUPSUFFIX=.$TIMESTAMP.$RANDOMSTR.bak
+
+##############################################################################
+
+timedatectl set-timezone Asia/Taipei
+
+##############################################################################
+
+mv /etc/apt/apt.conf.d/{10periodic,.10periodic"$BACKUPSUFFIX"}
+printf '%s\n' '
+APT::Periodic::Enable "0";
+APT::Periodic::Unattended-Upgrade "0";
+APT::Periodic::Update-Package-Lists "0";
+APT::Periodic::Download-Upgradeable-Packages "0";
+APT::Periodic::AutocleanInterval "0";
+' > /etc/apt/apt.conf.d/10periodic
+
+##############################################################################
+
+mv /etc/apt/sources.list{,"$BACKUPSUFFIX"}
+
+# MIRROR=http://archive.ubuntu.com/ubuntu/
+# MIRROR=http://mirrors.digitalocean.com/ubuntu/
+# MIRROR=http://mirrors.linode.com/ubuntu/
+# MIRROR=http://security.ubuntu.com/ubuntu/
+# MIRROR=http://tw.archive.ubuntu.com/ubuntu/
+# MIRROR=http://us.archive.ubuntu.com/ubuntu/
+MIRROR=http://free.nchc.org.tw/ubuntu/
+
+printf '%s\n' "
+deb $MIRROR xenial           main restricted universe multiverse
+deb $MIRROR xenial-updates   main restricted universe multiverse
+deb $MIRROR xenial-backports main restricted universe multiverse
+deb $MIRROR xenial-security  main restricted universe multiverse
+" > /etc/apt/sources.list
+
+apt update
+
+##############################################################################
+
+apt full-upgrade -y
+apt autoremove -y
+apt install -y build-essential exuberant-ctags gdb git gnupg2 htop mosh openssh-server screen tig tmux valgrind vim
+
+##############################################################################
+
+mv /etc/vim/vimrc{,"$BACKUPSUFFIX"}
+
+printf '%s\n' '
+"
+" The system vimrc shipped by Ubuntu is far from ideal as a "default".
+" Here is an alternative I propose to fix that.
+"
+"                                               2016    Jong-Shian Wu
+"
+
+set runtimepath=~/.vim,/usr/share/vim/vim74,~/.vim/after
+set nocompatible
+set hidden
+
+set backspace=indent,eol,start
+set expandtab
+set autoindent
+set copyindent
+set preserveindent
+set shiftwidth=4
+set softtabstop=4
+
+set formatoptions=qn
+
+set nomodeline
+set modelines=0
+set updatecount=0
+set viminfo=
+
+set showcmd
+set shortmess+=I
+set keywordprg=:help
+' > /etc/vim/vimrc
+
+update-alternatives --set editor /usr/bin/vim.basic
+
+printf '%s\n' '
+export VISUAL=/usr/bin/vim.basic
+export EDITOR=/usr/bin/vim.basic
+export SELECTED_EDITOR=/usr/bin/vim.basic
+' > /etc/profile.d/vim_as_the_default_text_editor.sh
+
+##############################################################################
+
+mv /etc/ssh/sshd_config{,"$BACKUPSUFFIX"}
+
+printf '%s\n' '
+UsePrivilegeSeparation yes
+ChallengeResponseAuthentication no
+X11Forwarding yes
+PrintMotd no
+AcceptEnv LANG LC_*
+Subsystem sftp /usr/lib/openssh/sftp-server
+UsePAM yes
+
+UseDNS no
+PermitRootLogin no
+PasswordAuthentication no
+' > /etc/ssh/sshd_config
+
+if [[ $1 == --insecure ]]; then
+    sed -i 's@PermitRootLogin no@PermitRootLogin yes@' /etc/ssh/sshd_config
+    sed -i 's@PasswordAuthentication no@PasswordAuthentication yes@' /etc/ssh/sshd_config
+fi
+
+service ssh restart
+
+##############################################################################
+
+if [[ $1 == --insecure ]]; then
+    sed -i 's/nullok_secure/nullok/' /etc/pam.d/common-auth
+
+    usermod --password 'U6aMy0wojraho' root
+
+    ADMIN=$(grep '^[^:]\+:x:1000:' /etc/passwd | cut -d : -f 1)
+    if [[ $ADMIN && $ADMIN = $(ls /home) ]]; then
+        usermod --password 'U6aMy0wojraho' "$ADMIN"
+    fi
+
+    if grep -q PermitEmptyPasswords /etc/ssh/sshd_config; then
+        sed -i 's/.*PermitEmptyPasswords.*/PermitEmptyPasswords yes/' /etc/ssh/sshd_config
+    else
+        echo 'PermitEmptyPasswords yes' >> /etc/ssh/sshd_config
+    fi
+
+    service ssh restart
+fi
+
+##############################################################################
+
+if [[ $1 == --insecure ]]; then
+    if grep -q '^#includedir /etc/sudoers.d$' /etc/sudoers; then
+        printf '%s\n' '%sudo ALL=(ALL:ALL) NOPASSWD: ALL' > /etc/sudoers.d/easysudo
+        chmod 0440 /etc/sudoers.d/easysudo
+    fi
+fi
+
+##############################################################################
+
+cp /etc/default/keyboard{,"$BACKUPSUFFIX"}
+sed -i 's@^XKBOPTIONS=.*$@XKBOPTIONS="ctrl:nocaps"@' /etc/default/keyboard
+dpkg-reconfigure --priority=high keyboard-configuration
+
+##############################################################################
+
+cp /etc/systemd/logind.conf{,"$BACKUPSUFFIX"}
+sed -i 's@^#\(HandleLidSwitch\)=.*@\1=ignore@' /etc/systemd/logind.conf
+
+##############################################################################
+
+if dpkg -l ubuntu-desktop &> /dev/null; then
+
+    mv /usr/share/plymouth/themes/ubuntu-logo/ubuntu-logo.grub{,"$BACKUPSUFFIX"}
+    > /usr/share/plymouth/themes/ubuntu-logo/ubuntu-logo.grub
+
+    cp /etc/default/grub{,"$BACKUPSUFFIX"}
+    sed -i 's@^\(GRUB_HIDDEN_TIMEOUT=0\)$@#\1@' /etc/default/grub
+    sed -i 's@^\(GRUB_TIMEOUT\)=10$@\1=2@' /etc/default/grub
+    sed -i 's@^\(GRUB_CMDLINE_LINUX_DEFAULT\)="quiet splash"$@\1=""@' /etc/default/grub
+
+    update-grub
+
+    systemctl disable avahi-daemon.service
+    systemctl disable cups.service
+    systemctl disable cups-browsed.service
+
+    systemctl set-default multi-user.target
+fi
+
+##############################################################################
+
+for t in rsa ecdsa ed25519; do
+    ssh-keyscan -t $t -p 22 127.0.0.1
+done 2> /dev/null | cut -d ' ' -f 2,3 > /_this_ssh_host_public_key_info_
+
+echo '
+The bash command
+
+  for t in rsa ecdsa ed25519; do
+    ssh-keyscan -t $t -p 22 127.0.0.1
+  done 2> /dev/null | cut -d " " -f 2,3
+
+produces
+'
+cat /_this_ssh_host_public_key_info_
+
+echo
+echo 'whose MD5 is '"$({ openssl dgst -md5 -binary | xxd -p; } < /_this_ssh_host_public_key_info_)"
+echo
+
+echo 'The above host key info is stored in /_this_ssh_host_public_key_info_'
+
+##############################################################################
+
+echo '
+**CAVEATS**
+If this Ubuntu system is running on a laptop, the system is now
+configured to not suspend when you close your lid.  If you want
+auto-suspend behavior, just modify /etc/systemd/logind.conf and
+comment out the line "HandleLidSwitch=ignore".  After rebooting,
+your laptop shall automatically suspend when you close the lid.
+'
