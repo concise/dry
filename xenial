@@ -112,46 +112,15 @@ Subsystem sftp /usr/lib/openssh/sftp-server
 UsePAM yes
 
 UseDNS no
-PermitRootLogin no
 PasswordAuthentication no
 ' > /etc/ssh/sshd_config
-
-if [[ $1 == --insecure ]]; then
-    sed -i 's@PermitRootLogin no@PermitRootLogin yes@' /etc/ssh/sshd_config
-    sed -i 's@PasswordAuthentication no@PasswordAuthentication yes@' /etc/ssh/sshd_config
-fi
 
 service ssh restart
 
 ##############################################################################
 
-if [[ $1 == --insecure ]]; then
-    sed -i 's/nullok_secure/nullok/' /etc/pam.d/common-auth
-
-    usermod --password 'U6aMy0wojraho' root
-
-    ADMIN=$(grep '^[^:]\+:x:1000:' /etc/passwd | cut -d : -f 1)
-    if [[ $ADMIN && $ADMIN = $(ls /home) ]]; then
-        usermod --password 'U6aMy0wojraho' "$ADMIN"
-    fi
-
-    if grep -q PermitEmptyPasswords /etc/ssh/sshd_config; then
-        sed -i 's/.*PermitEmptyPasswords.*/PermitEmptyPasswords yes/' /etc/ssh/sshd_config
-    else
-        echo 'PermitEmptyPasswords yes' >> /etc/ssh/sshd_config
-    fi
-
-    service ssh restart
-fi
-
-##############################################################################
-
-if [[ $1 == --insecure ]]; then
-    if grep -q '^#includedir /etc/sudoers.d$' /etc/sudoers; then
-        printf '%s\n' '%sudo ALL=(ALL:ALL) NOPASSWD: ALL' > /etc/sudoers.d/easysudo
-        chmod 0440 /etc/sudoers.d/easysudo
-    fi
-fi
+printf '%s\n' '%sudo ALL=(ALL:ALL) NOPASSWD: ALL' > /etc/sudoers.d/sudo_without_password
+chmod 0440 /etc/sudoers.d/sudo_without_password
 
 ##############################################################################
 
