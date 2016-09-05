@@ -369,3 +369,26 @@ fi
 if [[ $is_desktop == y && $server_style_grub_menu == y ]] || [[ $disable_ipv6_in_kernel == y ]]; then
     update-grub
 fi
+
+##############################################################################
+
+for t in rsa ecdsa ed25519; do
+    ssh-keyscan -t $t -p 22 127.0.0.1
+done 2> /dev/null | cut -d ' ' -f 2,3 > /_this_ssh_host_public_key_info_
+
+echo '
+The bash command
+
+  for t in rsa ecdsa ed25519; do
+    ssh-keyscan -t $t -p 22 127.0.0.1
+  done 2> /dev/null | cut -d " " -f 2,3
+
+produces
+'
+cat /_this_ssh_host_public_key_info_
+
+echo
+echo 'whose MD5 is '"$({ openssl dgst -md5 -binary | xxd -p; } < /_this_ssh_host_public_key_info_)"
+echo
+
+echo 'The above host key info is stored in /_this_ssh_host_public_key_info_'
