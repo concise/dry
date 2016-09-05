@@ -227,11 +227,11 @@ apt autoremove -y
 
 if [[ $set_vim_as_default_text_editor == y ||
       $change_system_vimrc == y ]]; then
-    apt install vim
+    apt install -y vim
 fi
 
 if [[ $ensure_sshd == y ]]; then
-    apt install openssh-server
+    apt install -y openssh-server
 fi
 
 ##############################################################################
