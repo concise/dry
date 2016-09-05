@@ -222,7 +222,7 @@ apt update
 
 apt full-upgrade -y
 apt autoremove -y
-apt install -y build-essential gdb git gnupg2 mercurial screen tmux valgrind
+apt install -y build-essential gdb git gnupg2 manpages-dev mercurial screen tmux valgrind
 
 ##############################################################################
 
