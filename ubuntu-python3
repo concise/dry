@@ -1,22 +1,24 @@
 #!/bin/bash
 #
-# sudo su -
-# wget https://github.com/concise/dry/raw/master/ubuntu-python3
-# bash ubuntu-python3
+# You can check if there is a new release at https://www.python.org/downloads/
 #
-# python3 -m pip install --upgrade pip setuptools
+# After python is installed, you can update the default pip and setuptools
+#
+#       python3 -m pip install --upgrade pip setuptools
 #
 
 set -e
 
-TMPDIR=$(mktemp -d)
-cd "$TMPDIR"
+cd "$(mktemp -d)"
 
-apt-get install -y make libreadline-dev libssl-dev
+sudo apt-get install -y gcc make libreadline-dev libssl-dev
+
 wget https://www.python.org/ftp/python/3.5.2/Python-3.5.2.tar.xz
 openssl md5 Python-3.5.2.tar.xz | grep 8906efbacfcdc7c3c9198aeefafd159e
+
 tar xf Python-3.5.2.tar.xz
 cd Python-3.5.2
-./configure
+
+./configure --prefix="$HOME/local"
 make -j 8
 make install
