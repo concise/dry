@@ -372,6 +372,8 @@ fi
 
 ##############################################################################
 
+if [[ $ensure_sshd == y ]]; then
+
 for t in rsa ecdsa ed25519; do
     ssh-keyscan -t $t -p 22 127.0.0.1
 done 2> /dev/null | cut -d ' ' -f 2,3 > /_this_ssh_host_public_key_info_
@@ -392,3 +394,5 @@ echo 'whose MD5 is '"$({ openssl dgst -md5 -binary | xxd -p; } < /_this_ssh_host
 echo
 
 echo 'The above host key info is stored in /_this_ssh_host_public_key_info_'
+
+fi
