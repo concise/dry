@@ -21,20 +21,20 @@ BACKUPSUFFIX=.$TIMESTAMP.$RANDOMSTR.bak
 ##############################################################################
 
 while true; do
-    read -p 'change time zone to Asia/Taipei? [y/n] ' ans
+    read -p 'change time zone to Asia/Taipei? [Y/n] ' ans
     case $ans in
-        y) change_time_zone_to_taipei=y ;;
-        n) change_time_zone_to_taipei=n ;;
+        Y|y|'') change_time_zone_to_taipei=y ;;
+        N|n) change_time_zone_to_taipei=n ;;
         *) echo 'please answer y or n' ; continue ;;
     esac
     break
 done
 
 while true; do
-    read -p 'configure apt to never update/upgrade automatically? [y/n] ' ans
+    read -p 'configure apt to never update/upgrade automatically? [Y/n] ' ans
     case $ans in
-        y) never_update_upgrade_automatically=y ;;
-        n) never_update_upgrade_automatically=n ;;
+        Y|y|'') never_update_upgrade_automatically=y ;;
+        N|n) never_update_upgrade_automatically=n ;;
         *) echo 'please answer y or n' ; continue ;;
     esac
     break
@@ -48,9 +48,9 @@ while true; do
     echo '5: http://tw.archive.ubuntu.com/ubuntu/'
     echo '6: http://us.archive.ubuntu.com/ubuntu/'
     echo '7: http://archive.ubuntu.com/ubuntu/'
-    read -p 'which mirror do you want to use? [1/2/3/4/5/6/7] ' ans
+    read -p 'which mirror do you want to use? (default: 1) [1/2/3/4/5/6/7] ' ans
     case $ans in
-        1) aptmirror=http://free.nchc.org.tw/ubuntu/ ;;
+        1|'') aptmirror=http://free.nchc.org.tw/ubuntu/ ;;
         2) aptmirror=http://mirrors.digitalocean.com/ubuntu/ ;;
         3) aptmirror=http://mirrors.linode.com/ubuntu/ ;;
         4) aptmirror=http://security.ubuntu.com/ubuntu/ ;;
@@ -63,60 +63,60 @@ while true; do
 done
 
 while true; do
-    read -p 'change default text editor to vim? [y/n] ' ans
+    read -p 'change default text editor to vim? [Y/n] ' ans
     case $ans in
-        y) set_vim_as_default_text_editor=y ;;
-        n) set_vim_as_default_text_editor=n ;;
+        Y|y|'') set_vim_as_default_text_editor=y ;;
+        N|n) set_vim_as_default_text_editor=n ;;
         *) echo 'please answer y or n' ; continue ;;
     esac
     break
 done
 
 while true; do
-    read -p 'change system vimrc? [y/n] ' ans
+    read -p 'change system vimrc? [Y/n] ' ans
     case $ans in
-        y) change_system_vimrc=y ;;
-        n) change_system_vimrc=n ;;
+        Y|y|'') change_system_vimrc=y ;;
+        N|n) change_system_vimrc=n ;;
         *) echo 'please answer y or n' ; continue ;;
     esac
     break
 done
 
 while true; do
-    read -p 'let users in sudo group use sudo without passwords? [y/n] ' ans
+    read -p 'let users in sudo group use sudo without passwords? [Y/n] ' ans
     case $ans in
-        y) passwordless_sudo_for_sudo_group=y ;;
-        n) passwordless_sudo_for_sudo_group=n ;;
+        Y|y|'') passwordless_sudo_for_sudo_group=y ;;
+        N|n) passwordless_sudo_for_sudo_group=n ;;
         *) echo 'please answer y or n' ; continue ;;
     esac
     break
 done
 
 while true; do
-    read -p 'make capslock key an additional ctrl key? [y/n] ' ans
+    read -p 'make capslock key an additional ctrl key? [Y/n] ' ans
     case $ans in
-        y) capslock_to_ctrl=y ;;
-        n) capslock_to_ctrl=n ;;
+        Y|y|'') capslock_to_ctrl=y ;;
+        N|n) capslock_to_ctrl=n ;;
         *) echo 'please answer y or n' ; continue ;;
     esac
     break
 done
 
 while true; do
-    read -p 'prevent suspending automatically when lid is closed? [y/n] ' ans
+    read -p 'prevent suspending automatically when lid is closed? [Y/n] ' ans
     case $ans in
-        y) prevent_suspending=y ;;
-        n) prevent_suspending=n ;;
+        Y|y|'') prevent_suspending=y ;;
+        N|n) prevent_suspending=n ;;
         *) echo 'please answer y or n' ; continue ;;
     esac
     break
 done
 
 while true; do
-    read -p 'ensure openssh-server is installed? [y/n] ' ans
+    read -p 'ensure openssh-server is installed? [Y/n] ' ans
     case $ans in
-        y) ensure_sshd=y ;;
-        n) ensure_sshd=n ;;
+        Y|y|'') ensure_sshd=y ;;
+        N|n) ensure_sshd=n ;;
         *) echo 'please answer y or n' ; continue ;;
     esac
     break
@@ -124,20 +124,20 @@ done
 
 if [[ $ensure_sshd == y ]]; then
     while true; do
-        read -p 'change sshd_config? [y/n] ' ans
+        read -p 'change sshd_config? [Y/n] ' ans
         case $ans in
-            y) change_sshd_config=y ;;
-            n) change_sshd_config=n ;;
+            Y|y|'') change_sshd_config=y ;;
+            N|n) change_sshd_config=n ;;
             *) echo 'please answer y or n' ; continue ;;
         esac
         break
     done
 
     while true; do
-        read -p 'disable password ssh login? [y/n] ' ans
+        read -p 'disable password ssh login? [y/N] ' ans
         case $ans in
-            y) sshd_config_disable_password_authentication=y ;;
-            n) sshd_config_disable_password_authentication=n ;;
+            Y|y) sshd_config_disable_password_authentication=y ;;
+            N|n|'') sshd_config_disable_password_authentication=n ;;
             *) echo 'please answer y or n' ; continue ;;
         esac
         break
@@ -145,10 +145,10 @@ if [[ $ensure_sshd == y ]]; then
 fi
 
 while true; do
-    read -p 'disable IPv6 in kernel? [y/n] ' ans
+    read -p 'disable IPv6 in kernel? [Y/n] ' ans
     case $ans in
-        y) disable_ipv6_in_kernel=y ;;
-        n) disable_ipv6_in_kernel=n ;;
+        Y|y|'') disable_ipv6_in_kernel=y ;;
+        N|n) disable_ipv6_in_kernel=n ;;
         *) echo 'please answer y or n' ; continue ;;
     esac
     break
@@ -156,30 +156,30 @@ done
 
 if [[ $is_desktop == y ]]; then
     while true; do
-        read -p 'make grub menu look like the server version? [y/n] ' ans
+        read -p 'make grub menu look like the server version? [Y/n] ' ans
         case $ans in
-            y) server_style_grub_menu=y ;;
-            n) server_style_grub_menu=n ;;
+            Y|y|'') server_style_grub_menu=y ;;
+            N|n) server_style_grub_menu=n ;;
             *) echo 'please answer y or n' ; continue ;;
         esac
         break
     done
 
     while true; do
-        read -p 'boot into tty1 text console by default? [y/n] ' ans
+        read -p 'boot into tty1 text console by default? [Y/n] ' ans
         case $ans in
-            y) boot_to_multi_user_target=y ;;
-            n) boot_to_multi_user_target=n ;;
+            Y|y|'') boot_to_multi_user_target=y ;;
+            N|n) boot_to_multi_user_target=n ;;
             *) echo 'please answer y or n' ; continue ;;
         esac
         break
     done
 
     while true; do
-        read -p 'disable avahi and cups services? [y/n] ' ans
+        read -p 'disable avahi and cups services? [Y/n] ' ans
         case $ans in
-            y) disable_avahi_cups=y ;;
-            n) disable_avahi_cups=n ;;
+            Y|y|'') disable_avahi_cups=y ;;
+            N|n) disable_avahi_cups=n ;;
             *) echo 'please answer y or n' ; continue ;;
         esac
         break
