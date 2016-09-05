@@ -52,6 +52,9 @@ apt update
 
 apt full-upgrade -y
 apt autoremove -y
+
+##############################################################################
+
 apt install -y build-essential exuberant-ctags gdb git gnupg2 htop mosh openssh-server screen tig tmux valgrind vim
 
 ##############################################################################
@@ -143,7 +146,7 @@ if dpkg -l ubuntu-desktop &> /dev/null; then
     cp /etc/default/grub{,"$BACKUPSUFFIX"}
     sed -i 's@^\(GRUB_HIDDEN_TIMEOUT=0\)$@#\1@' /etc/default/grub
     sed -i 's@^\(GRUB_TIMEOUT\)=10$@\1=2@' /etc/default/grub
-    sed -i 's@^\(GRUB_CMDLINE_LINUX_DEFAULT\)="quiet splash"$@\1=""@' /etc/default/grub
+    sed -i 's@^\(GRUB_CMDLINE_LINUX_DEFAULT\)="quiet splash"$@\1="ipv6.disable=1"@' /etc/default/grub
 
     update-grub
 
@@ -152,6 +155,9 @@ if dpkg -l ubuntu-desktop &> /dev/null; then
     systemctl disable cups-browsed.service
 
     systemctl set-default multi-user.target
+else
+    sed -i 's@^\(GRUB_CMDLINE_LINUX_DEFAULT\)=""$@\1="ipv6.disable=1"@' /etc/default/grub
+    update-grub
 fi
 
 ##############################################################################
