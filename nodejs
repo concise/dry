@@ -2,27 +2,27 @@
 
 set -e
 
-VER=$1
-if [[ ${VER:+x} ]]; then
-        :
-else
-        VER=$(
-                curl -s https://nodejs.org/dist/latest-v4.x/SHASUMS256.txt |
-                grep linux-x64.tar.gz |
-                sed 's/.*node-\(v4\.[0-9]*\.[0-9]*\)-linux-x64\.tar\.gz.*/\1/'
-        )
-fi
-
-OS=linux
-DIR=node-$VER-$OS-x64
-URL=https://nodejs.org/download/release/$VER/$DIR.tar.gz
 WORKING_DIR=$(mktemp -d)
 
-echo "Now downloading: '$URL'"
-echo
+OS=linux    # "linux" or "darwin"
+VER=$1      # some string like "v4.5.0"
 
+if [[ ${VER:+x} ]]; then
+    :
+else
+    VER=$(
+        curl -s https://nodejs.org/dist/latest-v4.x/SHASUMS256.txt |
+        grep linux-x64.tar.gz |
+        sed 's/.*node-\(v4\.[0-9]*\.[0-9]*\)-linux-x64\.tar\.gz.*/\1/'
+    )
+fi
+
+DIR=node-$VER-$OS-x64
+URL=https://nodejs.org/download/release/$VER/$DIR.tar.gz
+
+echo "Now downloading: '$URL'"
 curl --progress-bar -Lo "$WORKING_DIR/$DIR.tar.gz" "$URL"
 tar xf "$WORKING_DIR/$DIR.tar.gz" -C "$WORKING_DIR"
 
-echo
+echo "Finished:"
 echo "$WORKING_DIR/$DIR"
