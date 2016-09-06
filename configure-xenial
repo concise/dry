@@ -253,23 +253,13 @@ if [[ $change_system_vimrc == y ]]; then
 
     echo '
 "
-" The system vimrc shipped by Ubuntu is far from ideal as a "default".
+" The system vimrc ($VIM/vimrc) shipped by Ubuntu is not good as a "default".
 " Here is an alternative I propose to fix that.
 "
 
-set runtimepath=~/.vim,/usr/share/vim/vim74,~/.vim/after
+set runtimepath=~/.vim,$VIMRUNTIME,~/.vim/after
 set nocompatible
 set hidden
-
-set backspace=indent,eol,start
-set expandtab
-set autoindent
-set copyindent
-set preserveindent
-set shiftwidth=4
-set softtabstop=4
-
-set formatoptions=qn
 
 set nomodeline
 set modelines=0
@@ -279,6 +269,16 @@ set viminfo=
 set showcmd
 set shortmess+=I
 set keywordprg=:help
+
+set formatoptions=qn
+
+set backspace=indent,eol,start
+set expandtab
+set autoindent
+set copyindent
+set preserveindent
+set shiftwidth=4
+set softtabstop=4
 ' > /etc/vim/vimrc
 
 fi
