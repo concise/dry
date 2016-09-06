@@ -257,21 +257,17 @@ if [[ $change_system_vimrc == y ]]; then
 " Here is an alternative I propose to fix that.
 "
 
-set runtimepath=~/.vim,$VIMRUNTIME,~/.vim/after
-set nocompatible
-set hidden
-
-set nomodeline
+set nocompatible        " (-N) do not be vi compatible
+set updatecount=0       " (-n) do not make swap files
+set viminfo=            " (-i NONE) do not use viminfo file
+set noloadplugins       " (implied by -u NONE) do not load plugins
 set modelines=0
-set updatecount=0
-set viminfo=
-
+set nomodeline
+set hidden
 set showcmd
 set shortmess+=I
 set keywordprg=:help
-
-set formatoptions=qn
-
+set runtimepath=~/.vim,$VIMRUNTIME,~/.vim/after
 set backspace=indent,eol,start
 set expandtab
 set autoindent
@@ -279,6 +275,8 @@ set copyindent
 set preserveindent
 set shiftwidth=4
 set softtabstop=4
+set formatoptions=qn
+set textwidth=78
 ' > /etc/vim/vimrc
 
 fi
