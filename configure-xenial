@@ -266,7 +266,7 @@ set nomodeline
 set hidden
 set showcmd
 set shortmess+=I
-set keywordprg=:help
+set keywordprg=:ec
 set runtimepath=~/.vim,$VIMRUNTIME,~/.vim/after
 set backspace=indent,eol,start
 set expandtab

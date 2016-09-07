@@ -55,7 +55,7 @@ apt-get install -y build-essential exuberant-ctags gdb git gnupg2 htop mosh open
 ##############################################################################
 
 cp /etc/vim/vimrc{,"$BACKUPSUFFIX"}
-echo > /etc/vim/vimrc 'se nocp uc=0 vi= nolpl rtp=$VIMRUNTIME mls=0 hid bs=2 ai ci pi et sts=4 sw=4 kp=:help fo=qn tw=79 sc shm+=I lcs=tab:>-,trail:.|sy off|filet off'
+echo > /etc/vim/vimrc 'se nocp uc=0 vi= nolpl rtp=$VIMRUNTIME mls=0 hid bs=2 ai ci pi et sts=4 sw=4 kp=:ec fo=qn tw=79 sc shm+=I lcs=tab:>-,trail:.|sy off|filet off'
 update-alternatives --set editor /usr/bin/vim.basic
 printf "\
 export VISUAL=/usr/bin/vim.basic
