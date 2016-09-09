@@ -296,7 +296,7 @@ if [[ $ensure_sshd == y ]]; then
     if [[ $sshd_config_disable_password_authentication == y ]]; then
         {
             echo 'PasswordAuthentication no'
-        } > /etc/ssh/sshd_config
+        } >> /etc/ssh/sshd_config
     fi
 
     service ssh restart
