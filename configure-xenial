@@ -134,10 +134,10 @@ if [[ $ensure_sshd == y ]]; then
     done
 
     while true; do
-        read -p 'disable password ssh login? [y/N] ' ans
+        read -p 'disable password ssh login? [Y/n] ' ans
         case $ans in
-            Y|y) sshd_config_disable_password_authentication=y ;;
-            N|n|'') sshd_config_disable_password_authentication=n ;;
+            Y|y|'') sshd_config_disable_password_authentication=y ;;
+            N|n) sshd_config_disable_password_authentication=n ;;
             *) echo 'please answer y or n' ; continue ;;
         esac
         break
