@@ -250,35 +250,7 @@ fi
 
 if [[ $change_system_vimrc == y ]]; then
     mv /etc/vim/vimrc{,"$BACKUPSUFFIX"}
-
-    echo '
-"
-" The system vimrc ($VIM/vimrc) shipped by Ubuntu is not good as a "default".
-" Here is an alternative I propose to fix that.
-"
-
-set nocompatible        " (-N) do not be vi compatible
-set updatecount=0       " (-n) do not make swap files
-set viminfo=            " (-i NONE) do not use viminfo file
-set noloadplugins       " (implied by -u NONE) do not load plugins
-set modelines=0
-set nomodeline
-set hidden
-set showcmd
-set shortmess+=I
-set keywordprg=:ec
-set runtimepath=~/.vim,$VIMRUNTIME,~/.vim/after
-set backspace=indent,eol,start
-set expandtab
-set autoindent
-set copyindent
-set preserveindent
-set shiftwidth=4
-set softtabstop=4
-set formatoptions=qn
-set textwidth=78
-' > /etc/vim/vimrc
-
+    echo 'se nocp uc=0 vi= nolpl rtp= mls=0 noml hid sc shm+=I kp=:ec bs=2 et ai ci pi sw=4 sts=4 fo=qn tw=78' > /etc/vim/vimrc
 fi
 
 ##############################################################################
