@@ -231,10 +231,6 @@ if [[ $set_vim_as_default_text_editor == y ||
     apt install -y vim
 fi
 
-if [[ $ensure_sshd == y ]]; then
-    apt install -y openssh-server
-fi
-
 ##############################################################################
 
 if [[ $set_vim_as_default_text_editor == y ]]; then
@@ -278,6 +274,8 @@ fi
 ##############################################################################
 
 if [[ $ensure_sshd == y ]]; then
+    apt install -y openssh-server
+
     if [[ $change_sshd_config == y ]]; then
         mv /etc/ssh/sshd_config{,"$BACKUPSUFFIX"}
         {
