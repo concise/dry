@@ -258,7 +258,7 @@ fi
 
 if [[ $change_system_vimrc == y ]]; then
     mv /etc/vim/vimrc{,"$BACKUPSUFFIX"}
-    echo 'se nocp uc=0 vi= nolpl rtp= mls=0 noml hid sc shm+=I kp=:ec bs=2 et ai ci pi sw=4 sts=4 fo=qn tw=78' > /etc/vim/vimrc
+    echo 'se nocp uc=0 vi= nolpl rtp=$VIMRUNTIME mls=0 noml hid sc shm+=I kp=:ec bs=2 et ai ci pi sw=4 sts=4 fo=qn tw=78 hls' > /etc/vim/vimrc
 fi
 
 ##############################################################################
