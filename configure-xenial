@@ -21,7 +21,7 @@ BACKUPSUFFIX=.$TIMESTAMP.$RANDOMSTR.bak
 ##############################################################################
 
 while true; do
-    read -p 'change time zone to Asia/Taipei? [Y/n] ' ans
+    read -p 'change time zone to "Asia/Taipei"? [Y/n] ' ans
     case $ans in
         Y|y|'') change_time_zone_to_taipei=y ;;
         N|n) change_time_zone_to_taipei=n ;;
@@ -31,7 +31,7 @@ while true; do
 done
 
 while true; do
-    read -p 'configure apt to never update/upgrade automatically? [Y/n] ' ans
+    read -p 'configure apt to NEVER update/upgrade automatically? [Y/n] ' ans
     case $ans in
         Y|y|'') never_update_upgrade_automatically=y ;;
         N|n) never_update_upgrade_automatically=n ;;
@@ -73,17 +73,17 @@ while true; do
 done
 
 while true; do
-    read -p 'change system vimrc? [Y/n] ' ans
+    read -p 'simplify system vimrc? [Y/n] ' ans
     case $ans in
-        Y|y|'') change_system_vimrc=y ;;
-        N|n) change_system_vimrc=n ;;
+        Y|y|'') simplify_system_vimrc=y ;;
+        N|n) simplify_system_vimrc=n ;;
         *) echo 'please answer y or n' ; continue ;;
     esac
     break
 done
 
 while true; do
-    read -p 'let users in sudo group use sudo without passwords? [Y/n] ' ans
+    read -p 'allow sudo group members to sudo WITHOUT passwords? [Y/n] ' ans
     case $ans in
         Y|y|'') passwordless_sudo_for_sudo_group=y ;;
         N|n) passwordless_sudo_for_sudo_group=n ;;
@@ -124,17 +124,17 @@ done
 
 if [[ $ensure_sshd == y ]]; then
     while true; do
-        read -p 'change sshd_config? [Y/n] ' ans
+        read -p 'simplify sshd_config? [Y/n] ' ans
         case $ans in
-            Y|y|'') change_sshd_config=y ;;
-            N|n) change_sshd_config=n ;;
+            Y|y|'') simplify_sshd_config=y ;;
+            N|n) simplify_sshd_config=n ;;
             *) echo 'please answer y or n' ; continue ;;
         esac
         break
     done
 
     while true; do
-        read -p 'disable password ssh login? [Y/n] ' ans
+        read -p 'DISABLE password ssh login? [Y/n] ' ans
         case $ans in
             Y|y|'') sshd_config_disable_password_authentication=y ;;
             N|n) sshd_config_disable_password_authentication=n ;;
@@ -239,7 +239,7 @@ apt install -y build-essential gdb git gnupg2 manpages-dev mercurial screen tmux
 ##############################################################################
 
 if [[ $set_vim_as_default_text_editor == y ||
-      $change_system_vimrc == y ]]; then
+      $simplify_system_vimrc == y ]]; then
     apt install -y vim
 fi
 
@@ -256,7 +256,7 @@ fi
 
 ##############################################################################
 
-if [[ $change_system_vimrc == y ]]; then
+if [[ $simplify_system_vimrc == y ]]; then
     mv /etc/vim/vimrc{,"$BACKUPSUFFIX"}
     echo 'se nocp uc=0 vi= nolpl rtp=$VIMRUNTIME mls=0 noml hid sc shm+=I kp=:ec bs=2 et ai ci pi sw=4 sts=4 fo=qn tw=78 hls' > /etc/vim/vimrc
 fi
@@ -288,7 +288,7 @@ fi
 if [[ $ensure_sshd == y ]]; then
     apt install -y openssh-server
 
-    if [[ $change_sshd_config == y ]]; then
+    if [[ $simplify_sshd_config == y ]]; then
         mv /etc/ssh/sshd_config{,"$BACKUPSUFFIX"}
         {
             echo 'UsePrivilegeSeparation yes'
@@ -298,7 +298,6 @@ if [[ $ensure_sshd == y ]]; then
             echo 'AcceptEnv LANG LC_*'
             echo 'Subsystem sftp /usr/lib/openssh/sftp-server'
             echo 'UsePAM yes'
-
             echo 'UseDNS no'
         } > /etc/ssh/sshd_config
     fi
